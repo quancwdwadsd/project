@@ -1,0 +1,74 @@
+.page-heading { display: flex; justify-content: space-between; align-items: center; gap: 1.25rem; margin-bottom: 1.875rem; }
+.add-user-button { min-width: 12.3125rem; min-height: 2.875rem; margin-top: .5rem; padding: .8125rem 1.125rem; border-radius: .875rem; font-size: .875rem; }
+.add-user-button .icon { width: .875rem; height: .875rem; }
+.members-card { min-height: 37.25rem; padding: 1.25rem 1.125rem 5rem; border-radius: var(--radius); background: var(--color-surface); }
+.members-header { display: flex; justify-content: space-between; align-items: center; gap: 1rem; min-height: 3.625rem; padding: 0 .375rem 2rem; border-bottom: 1px solid var(--color-border); }
+.members-header h2 { margin: 0; font-size: .625rem; font-weight: 600; text-transform: uppercase; color: #7a877e; }
+.member-count { min-width: 9.625rem; margin-right: 1.375rem; padding: .375rem .5625rem; border-radius: .625rem; background: var(--color-lime-soft); color: #3e5130; font-size: .625rem; font-weight: 600; white-space: nowrap; }
+.user-list { display: flex; flex-direction: column; gap: 3rem; margin-top: 1.3125rem; padding-right: 4rem; }
+.user-row { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 7.25rem 7.25rem 3.75rem; align-items: center; column-gap: 1.75rem; min-height: 4.25rem; padding: .75rem 1.75rem .75rem 1.25rem; border-radius: .875rem; }
+.user-row:nth-child(odd) { background: #f8faf6; }
+.user-identity { display: flex; align-items: center; gap: .9375rem; min-width: 0; }
+.user-avatar { width: 2.3125rem; height: 2.3125rem; border-radius: .8125rem; background: #edf2ff; color: #27352b; font-size: .875rem; }
+.user-avatar.is-lime { background: var(--color-lime-soft); }
+.user-details { min-width: 0; }
+.user-name { margin: 0 0 .4375rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .875rem; font-weight: 600; }
+.user-email { margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #86928a; font-size: .75rem; }
+.badge { display: inline-block; padding: .375rem .5625rem; border-radius: .625rem; font-size: .625rem; font-weight: 600; line-height: 1.4; }
+.role-badge { background: #f5f7f2; color: #4a554c; }
+.status-badge { background: #e3f3e9; color: #39876a; }
+.status-pending { background: #fff3dc; color: #b57927; }
+.status-locked { background: #fbe8e6; color: #ac4e46; }
+.user-actions { position: relative; display: flex; justify-content: center; }
+.user-menu-button { width: 2.5rem; height: 2.5rem; }
+.user-menu-button .icon { width: 1.375rem; height: 1.375rem; fill: currentColor; stroke: none; }
+.user-menu { position: absolute; top: calc(100% + 3px); right: 0; z-index: 5; width: 175px; padding: 5px; border: 1px solid var(--color-border); border-radius: 11px; background: #fff; box-shadow: 0 8px 28px #14221a16; }
+.user-menu button { display: block; width: 100%; min-height: 36px; padding: 8px 10px; border-radius: 6px; background: transparent; text-align: left; font-size: 12px; }
+.user-menu button:hover, .user-menu button:focus-visible { background: #f3f6ee; }
+.user-menu .delete-action { color: #a53e38; }
+.empty-state { padding: 50px 16px 10px; text-align: center; color: var(--color-muted); }
+.empty-state > .icon { width: 30px; height: 30px; margin-bottom: 10px; }
+.empty-state h3 { color: var(--color-ink); font-size: 16px; }
+.empty-state p { margin-bottom: 22px; font-size: 12px; }
+dialog { width: min(480px, calc(100% - 32px)); max-height: calc(100dvh - 40px); padding: 27px; overflow-y: auto; border: 1px solid #e6ecdf; border-radius: 18px; background: #fff; color: var(--color-ink); box-shadow: 0 24px 100px #1223162e; }
+dialog::backdrop { background: #111c1766; backdrop-filter: blur(3px); }
+.dialog-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.dialog-heading h2, .confirm-dialog h2 { margin: 0; font-size: 23px; letter-spacing: -.5px; }
+.dialog-heading .eyebrow { margin-bottom: 9px; }
+.dialog-heading .icon-button { margin: -7px -7px 0 0; }
+.dialog-description, .confirm-dialog > p { margin: 14px 0 25px; color: var(--color-muted); font-size: 12px; line-height: 1.7; }
+.form-field { display: block; margin-bottom: 19px; font-size: 12px; font-weight: 600; }
+.form-field > span { color: #9c4f3f; }
+.form-field input, .form-field select { display: block; width: 100%; height: 43px; margin-top: 9px; padding: 10px 12px; border: 1px solid #dfe5d9; border-radius: 9px; background: #fbfcf9; color: var(--color-ink); font-size: 13px; font-weight: 400; }
+.form-field input::placeholder { color: #a0a99d; }
+.form-field input:focus, .form-field select:focus { border-color: #8cb74f; outline: 2px solid #d7edb7; outline-offset: 1px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-error { padding: 10px 12px; border-radius: 8px; background: #fff0ed; color: #9d3a2a; font-size: 12px; line-height: 1.5; }
+.dialog-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 12px; padding-top: 19px; border-top: 1px solid var(--color-border); }
+@media (max-width: 1100px) and (min-width: 701px) {
+  .user-list { padding-right: 0; gap: 2rem; }
+  .user-row { grid-template-columns: minmax(0, 1fr) 6rem 6rem 2.5rem; column-gap: .75rem; padding-inline: .75rem; }
+  .user-identity { gap: .625rem; }
+  .add-user-button { min-width: 10rem; }
+}
+@media (max-width: 700px) {
+  .page-heading { align-items: flex-start; flex-direction: column; gap: 17px; margin-bottom: 23px; }
+  .add-user-button { margin-top: 0; min-height: 42px; }
+  .members-card { min-height: 0; padding: 15px 12px 28px; }
+  .members-header { padding: 0 2px 17px; }
+  .members-header h2 { font-size: 8px; }
+  .member-count { min-width: 90px; margin-right: 0; font-size: 9px; }
+  .user-list { gap: 14px; margin-top: 14px; padding-right: 0; }
+  .user-row { grid-template-columns: minmax(0, 1fr) auto; gap: 11px 8px; padding: 13px 12px; }
+  .user-identity { grid-column: 1; grid-row: 1; gap: 10px; }
+  .user-name { font-size: 12px; }
+  .user-email { font-size: 10px; }
+  .user-avatar { width: 33px; height: 33px; }
+  .role-badge { grid-column: 1; grid-row: 2; justify-self: start; margin-left: 43px; }
+  .status-badge { grid-column: 1; grid-row: 3; justify-self: start; margin-left: 43px; }
+  .badge { font-size: 9px; padding: 4px 8px; }
+  .user-actions { grid-column: 2; grid-row: 1; align-self: start; }
+  .user-menu-button { width: 36px; height: 36px; }
+  dialog { padding: 23px; }
+  .form-grid { grid-template-columns: 1fr; gap: 0; }
+}
