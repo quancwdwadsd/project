@@ -4,7 +4,13 @@ import bcrypt
 
 from database import get_db
 from models import User, Role
-from schemas import UserCreate, UserRoleUpdate, UserResponse
+from schemas import (
+    UserCreate,
+    UserUpdate,
+    UserRoleUpdate,
+    UserStatusUpdate,
+    UserResponse
+)
 
 router = APIRouter(
     prefix="/users",
@@ -12,6 +18,7 @@ router = APIRouter(
 )
 
 
+# GET /users/
 @router.get("/", response_model=list[UserResponse])
 def get_users(db: Session = Depends(get_db)):
     users = db.query(User, Role.role_name).join(
@@ -32,6 +39,33 @@ def get_users(db: Session = Depends(get_db)):
     ]
 
 
+# GET /users/{user_id}
+@router.get("/{user_id}", response_model=UserResponse)
+def get_user(user_id: int, db: Session = Depends(get_db)):
+    result = db.query(User, Role.role_name).join(
+        Role,
+        User.role_id == Role.id
+    ).filter(User.id == user_id).first()
+
+    if not result:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found"
+        )
+
+    user, role_name = result
+
+    return {
+        "id": user.id,
+        "username": user.username,
+        "email": user.email,
+        "role_id": user.role_id,
+        "role_name": role_name,
+        "status": user.status
+    }
+
+
+# POST /users/
 @router.post("/", response_model=UserResponse, status_code=201)
 def create_user(
     user_data: UserCreate,
@@ -84,7 +118,56 @@ def create_user(
     }
 
 
-# PATCH /users/{id}/role
+# PUT /users/{user_id}
+@router.put("/{user_id}", response_model=UserResponse)
+def update_user(
+    user_id: int,
+    user_data: UserUpdate,
+    db: Session = Depends(get_db)
+):
+    user = db.query(User).filter(
+        User.id == user_id
+    ).first()
+
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found"
+        )
+
+    existing_user = db.query(User).filter(
+        ((User.username == user_data.username) |
+         (User.email == user_data.email)) &
+        (User.id != user_id)
+    ).first()
+
+    if existing_user:
+        raise HTTPException(
+            status_code=400,
+            detail="Username or email already exists"
+        )
+
+    user.username = user_data.username
+    user.email = user_data.email
+
+    db.commit()
+    db.refresh(user)
+
+    role = db.query(Role).filter(
+        Role.id == user.role_id
+    ).first()
+
+    return {
+        "id": user.id,
+        "username": user.username,
+        "email": user.email,
+        "role_id": user.role_id,
+        "role_name": role.role_name,
+        "status": user.status
+    }
+
+
+# PATCH /users/{user_id}/role
 @router.patch("/{user_id}/role", response_model=UserResponse)
 def update_user_role(
     user_id: int,
@@ -115,6 +198,42 @@ def update_user_role(
 
     db.commit()
     db.refresh(user)
+
+    return {
+        "id": user.id,
+        "username": user.username,
+        "email": user.email,
+        "role_id": user.role_id,
+        "role_name": role.role_name,
+        "status": user.status
+    }
+
+
+# PATCH /users/{user_id}/status
+@router.patch("/{user_id}/status", response_model=UserResponse)
+def update_user_status(
+    user_id: int,
+    status_data: UserStatusUpdate,
+    db: Session = Depends(get_db)
+):
+    user = db.query(User).filter(
+        User.id == user_id
+    ).first()
+
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found"
+        )
+
+    user.status = status_data.status
+
+    db.commit()
+    db.refresh(user)
+
+    role = db.query(Role).filter(
+        Role.id == user.role_id
+    ).first()
 
     return {
         "id": user.id,

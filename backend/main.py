@@ -3,6 +3,16 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 from database import get_db
 from routers.users import router as users_router
+from routers.auth import router as auth_router
+from routers.posts import router as posts_router
+from routers.channels import router as channels_router
+from routers.schedules import router as schedules_router
+from routers.tasks import router as tasks_router
+from routers.media import router as media_router
+from routers.interactions import router as interactions_router
+from routers.metrics import router as metrics_router
+from routers.post_media import router as post_media_router
+from routers.activity_logs import router as activity_logs_router
 
 app = FastAPI(
     title="Social Media Management API",
@@ -42,9 +52,20 @@ def test_database(db: Session = Depends(get_db)):
         )
 
 app.include_router(users_router)
+app.include_router(auth_router)
+app.include_router(posts_router)
+app.include_router(channels_router)
+app.include_router(schedules_router)
+app.include_router(tasks_router)
+app.include_router(media_router)
+app.include_router(interactions_router)
+app.include_router(metrics_router)
+app.include_router(post_media_router)
+app.include_router(activity_logs_router)
 
 @app.get("/")
 def home():
     return {
         "message": "Social Media Management API is running"
     }
+    
