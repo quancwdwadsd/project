@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#151e1a">
+  <title>Cấu hình hệ thống · MediaHub</title>
+  <link rel="stylesheet" href="../styles/style.css">
+  <link rel="stylesheet" href="../features/settings/settings.css">
+  <script src="../features/settings/services/settings-storage.js" defer></script>
+  <script src="../features/settings/settings.js" defer></script>
+</head>
+<body>
+  <svg class="icon-definitions" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="icon-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></symbol>
+    <symbol id="icon-channel" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M7 8h10M7 12h6M7 16h8"/></symbol>
+    <symbol id="icon-content" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 7h6M9 11h6M9 15h4"/></symbol>
+    <symbol id="icon-calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18"/></symbol>
+    <symbol id="icon-task" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="m8 12 3 3 5-6"/></symbol>
+    <symbol id="icon-chart" viewBox="0 0 24 24"><path d="M4 20v-7M10 20V8M16 20V4M22 20V10"/></symbol>
+    <symbol id="icon-users" viewBox="0 0 24 24"><circle cx="9" cy="7" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3M16 4a3 3 0 0 1 0 6M21 21v-3a6 6 0 0 0-4-5"/></symbol>
+    <symbol id="icon-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></symbol>
+    <symbol id="icon-bell" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></symbol>
+    <symbol id="icon-chevron" viewBox="0 0 24 24"><path d="m8 10 4 4 4-4"/></symbol>
+    <symbol id="icon-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+    <symbol id="icon-arrow" viewBox="0 0 24 24"><path d="M7 17 17 7M7 7h10v10"/></symbol>
+    <symbol id="icon-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+  </svg>
+
+  <div class="workspace">
+    <button class="sidebar-overlay" id="sidebar-overlay" aria-label="Đóng thanh điều hướng" hidden></button>
+    <aside class="sidebar" id="sidebar" aria-label="Không gian làm việc">
+      <a class="brand" href="./settings.html" aria-label="MediaHub — Cấu hình hệ thống">
+        <span class="brand-mark">m.</span><span>mediahub</span>
+      </a>
+      <p class="nav-label">Workspace</p>
+      <nav class="navigation" aria-label="Điều hướng chính">
+        <button class="nav-item" type="button" data-section="Tổng quan"><svg class="icon"><use href="#icon-grid"/></svg><span>Tổng quan</span></button>
+        <button class="nav-item" type="button" data-section="Kênh truyền thông"><svg class="icon"><use href="#icon-channel"/></svg><span>Kênh truyền thông</span></button>
+        <button class="nav-item" type="button" data-section="Thư viện nội dung"><svg class="icon"><use href="#icon-content"/></svg><span>Thư viện nội dung</span></button>
+        <button class="nav-item" type="button" data-section="Lịch xuất bản"><svg class="icon"><use href="#icon-calendar"/></svg><span>Lịch xuất bản</span></button>
+        <button class="nav-item" type="button" data-section="Công việc"><svg class="icon"><use href="#icon-task"/></svg><span>Công việc</span></button>
+        <button class="nav-item" type="button" data-section="Báo cáo phân tích"><svg class="icon"><use href="#icon-chart"/></svg><span>Báo cáo phân tích</span></button>
+        <a class="nav-item" href="./index.html"><svg class="icon"><use href="#icon-users"/></svg><span>Người dùng</span></a>
+        <button class="nav-item is-active" type="button" id="nav-settings" aria-current="page"><svg class="icon"><use href="#icon-settings"/></svg><span>Cấu hình hệ thống</span></button>      
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="upgrade-card">
+          <p class="upgrade-title"><span aria-hidden="true">✦</span> Workspace Pro</p>
+          <p>Tập trung toàn bộ nội dung<br>trong một không gian.</p>
+          <button type="button" id="manage-plan">Quản lý gói <svg class="icon"><use href="#icon-arrow"/></svg></button>
+        </div>
+        <button class="account-button" type="button" id="account-button">
+          <span class="avatar avatar-account">Q</span><span>Minh Quân</span><svg class="icon"><use href="#icon-chevron"/></svg>
+        </button>
+      </div>
+    </aside>
+
+    <div class="workspace-main">
+      <header class="topbar">
+        <button type="button" class="icon-button mobile-menu" id="mobile-menu" aria-label="Mở thanh điều hướng" aria-expanded="false" aria-controls="sidebar"><svg class="icon"><use href="#icon-menu"/></svg></button>
+        <div class="breadcrumb"><span>MediaHub</span><span class="breadcrumb-divider">/</span><span>Cấu hình hệ thống</span></div>
+        <div class="topbar-actions">
+          <button type="button" class="icon-button notification-button" id="notifications-button" aria-label="Thông báo"><svg class="icon"><use href="#icon-bell"/></svg></button>
+          <button type="button" class="profile-button" id="profile-button"><span class="avatar profile-avatar">MQ</span><span>Quản trị viên</span></button>
+        </div>
+      </header>
+
+      <main class="page-content" id="main-content">
+        <section class="page-heading" aria-labelledby="page-title">
+          <div><p class="eyebrow">Quản trị hệ thống</p><h1 id="page-title">Cấu hình hệ thống.</h1><p class="page-description">Múi giờ, quy tắc trạng thái bài đăng và các thông số vận hành.</p></div>
+        </section>
+
+        <p class="access-denied" id="access-denied" role="alert" hidden>Chỉ Quản trị viên được xem và thay đổi cấu hình hệ thống.</p>
+
+        <form id="settings-form" novalidate>
+          <p class="form-error" id="form-error" role="alert" hidden></p>
+          <fieldset class="settings-fieldset" id="settings-fieldset">
+            <legend class="visually-hidden">Cấu hình hệ thống</legend>
+            <div class="settings-grid">
+              <div class="settings-column">
+              <section class="settings-card" aria-labelledby="title-time">
+                <div class="card-header"><h2 class="card-title" id="title-time">Múi giờ</h2><p class="card-description">Mặc định là giờ Việt Nam. Lịch đăng và báo cáo dùng cùng một múi giờ để không lệch giờ.</p></div>
+                <div id="fields-time"></div>
+                <p class="tz-preview" id="tz-preview" aria-live="polite"></p>
+              </section>
+              <section class="settings-card" aria-labelledby="title-ops">
+                <div class="card-header"><h2 class="card-title" id="title-ops">Thông số vận hành</h2><p class="card-description">Bảo mật tài khoản, đồng bộ số liệu, tệp tải lên và lưu nhật ký.</p></div>
+                <div id="fields-ops"></div>
+              </section>
+              </div>
+              <div class="settings-column">
+              <section class="settings-card" aria-labelledby="title-status">
+                <div class="card-header"><h2 class="card-title" id="title-status">Quy tắc trạng thái bài đăng</h2><p class="card-description">Luồng trạng thái của một bài đăng và các điều kiện chuyển trạng thái.</p></div>
+                <ol class="status-flow" aria-label="Luồng trạng thái bài đăng">
+                  <li>Nháp</li><li>Chờ duyệt</li><li>Đã duyệt</li><li>Đã lên lịch</li><li>Đã đăng</li><li>Thất bại</li><li>Đã hủy</li>
+                </ol>
+                <div id="fields-status"></div>
+              </section>
+              <section class="settings-card" aria-labelledby="title-integration">
+                <div class="card-header"><h2 class="card-title" id="title-integration">Tích hợp mạng xã hội</h2><p class="card-description">Các tính năng phụ thuộc API của Facebook, Instagram, TikTok. Khóa bí mật và token không hiển thị ở đây.</p></div>
+                <div id="fields-integration"></div>
+              </section>
+              </div>
+            </div>
+          </fieldset>
+
+          <div class="action-bar">
+            <p class="dirty-note" id="dirty-note" role="status"></p>
+            <div class="action-buttons">
+              <button type="button" class="button button-secondary" id="reset-defaults">Khôi phục mặc định</button>
+              <button type="button" class="button button-secondary" id="revert-changes">Hủy thay đổi</button>
+              <button type="submit" class="button button-primary" id="save-settings">Lưu cấu hình</button>
+            </div>
+          </div>
+        </form>
+
+        <section class="settings-card history-card" aria-labelledby="title-history">
+          <div class="card-header"><h2 class="card-title" id="title-history">Lịch sử thay đổi</h2><p class="card-description" id="history-description">Ai đổi, đổi lúc nào và đổi gì. Thời gian hiển thị theo múi giờ đang áp dụng.</p></div>
+          <ol class="history-list" id="history-list" aria-label="Lịch sử thay đổi cấu hình"></ol>
+          <p class="history-empty" id="history-empty" hidden>Chưa có thay đổi nào.</p>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <dialog class="impact-dialog" id="impact-dialog" aria-labelledby="impact-title">
+    <div class="dialog-heading"><div><p class="eyebrow">Xác nhận thay đổi</p><h2 id="impact-title">Thay đổi này có ảnh hưởng</h2></div><button class="icon-button" type="button" id="impact-close" aria-label="Đóng"><svg class="icon"><use href="#icon-close"/></svg></button></div>
+    <p class="dialog-description">Kiểm tra các tác động dưới đây trước khi lưu.</p>
+    <ul class="impact-list" id="impact-list"></ul>
+    <div class="dialog-footer"><button type="button" class="button button-secondary" id="impact-cancel">Quay lại chỉnh sửa</button><button type="button" class="button button-primary" id="impact-confirm">Vẫn lưu</button></div>
+  </dialog>
+  <div class="toast" id="toast" role="status" hidden></div>
+</body>
+</html>
