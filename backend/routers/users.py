@@ -13,10 +13,12 @@ from schemas import (
     UserResponse
 )
 from schemas import UserAccessUpdate
+from security import require_roles
 
 router = APIRouter(
     prefix="/users",
-    tags=["Users"]
+    tags=["Users"],
+    dependencies=[Depends(require_roles("Admin"))],
 )
 
 

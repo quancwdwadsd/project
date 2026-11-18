@@ -3,8 +3,8 @@
   "database": "SQLite in memory; foreign_keys=ON",
   "auth": "Real login and JWT; only get_db overridden",
   "summary": {
-    "passed": 140,
-    "failed": 15
+    "passed": 143,
+    "failed": 12
   },
   "checks": 155,
   "covered_endpoints": 50,
@@ -1266,7 +1266,7 @@
       ],
       "actual": 200,
       "passed": false,
-      "detail": "{\"id\":1,\"title\":\"Updated task\",\"description\":null,\"assigned_to\":3,\"assigned_by\":1,\"status\":\"cancelled\",\"due_date\":null,\"created_at\":\"2026-11-18T05:15:49\"}"
+      "detail": "{\"id\":1,\"title\":\"Updated task\",\"description\":null,\"assigned_to\":3,\"assigned_by\":1,\"status\":\"cancelled\",\"due_date\":null,\"created_at\":\"2026-11-18T10:35:48\"}"
     },
     {
       "name": "Upload PNG",
@@ -1529,9 +1529,9 @@
         401,
         403
       ],
-      "actual": 200,
-      "passed": false,
-      "detail": "[{\"id\":1,\"username\":\"admin\",\"email\":\"admin@example.com\",\"role_id\":10,\"role_name\":\"Admin\",\"status\":true},{\"id\":2,\"username\":\"manager\",\"email\":\"manager@example.com\",\"role_id\":20,\"role_name\":\"Manager\",\"status\":true},{\"id\":3,\"username\":\"editor\",\"email\":\"editor@example.com\",\"role_id\":30,\"role_name\":\"Editor\",\"status\":true},{\"id\":4,\"username\":\"other\",\"ema"
+      "actual": 401,
+      "passed": true,
+      "detail": ""
     },
     {
       "name": "Editor cannot promote self to admin",
@@ -1540,9 +1540,9 @@
       "expected": [
         403
       ],
-      "actual": 200,
-      "passed": false,
-      "detail": "{\"id\":4,\"username\":\"other\",\"email\":\"other@example.com\",\"role_id\":10,\"role_name\":\"Admin\",\"status\":true}"
+      "actual": 403,
+      "passed": true,
+      "detail": ""
     },
     {
       "name": "Anonymous cannot create admin",
@@ -1552,9 +1552,9 @@
         401,
         403
       ],
-      "actual": 201,
-      "passed": false,
-      "detail": "{\"id\":7,\"username\":\"rogue\",\"email\":\"rogue@example.com\",\"role_id\":10,\"role_name\":\"Admin\",\"status\":true}"
+      "actual": 401,
+      "passed": true,
+      "detail": ""
     },
     {
       "name": "User update rejects email over DB limit",
@@ -1598,7 +1598,7 @@
       ],
       "actual": 200,
       "passed": false,
-      "detail": "{\"id\":1,\"title\":\"\",\"description\":null,\"assigned_to\":3,\"assigned_by\":1,\"status\":\"cancelled\",\"due_date\":null,\"created_at\":\"2026-11-18T05:15:49\"}"
+      "detail": "{\"id\":1,\"title\":\"\",\"description\":null,\"assigned_to\":3,\"assigned_by\":1,\"status\":\"cancelled\",\"due_date\":null,\"created_at\":\"2026-11-18T10:35:48\"}"
     },
     {
       "name": "Delete task",
@@ -1622,7 +1622,7 @@
       ],
       "actual": 200,
       "passed": false,
-      "detail": "{\"id\":2,\"file_name\":\"payload.html\",\"file_path\":\"C:\\\\Users\\\\nekbi\\\\AppData\\\\Local\\\\Temp\\\\branch-api-xcdd10rk\\\\uploads\\\\d1697ce027b144efa189bb4f2dcb8823.html\",\"file_type\":\"image/png\",\"uploaded_by\":1,\"created_at\":\"2026-11-18T05:15:49\"}"
+      "detail": "{\"id\":2,\"file_name\":\"payload.html\",\"file_path\":\"C:\\\\Users\\\\nekbi\\\\AppData\\\\Local\\\\Temp\\\\branch-api-4wope93h\\\\uploads\\\\3693d2caa6ff400abf021a3c595a514e.html\",\"file_type\":\"image/png\",\"uploaded_by\":1,\"created_at\":\"2026-11-18T10:35:49\"}"
     },
     {
       "name": "Delete attached media returns controlled conflict",
