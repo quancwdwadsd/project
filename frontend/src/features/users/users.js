@@ -2,12 +2,13 @@
   'use strict';
 
   const store = window.MediaHubUsers;
-  const loaded = store.load();
-  let users = loaded.users;
+  let users = [];
+  let saving = false;
   let editingId = null;
   let deletingId = null;
   let toastTimer;
   let dialogTrigger = null;
+  let editTrigger = null;
   let deleteTrigger = null;
   const list = document.getElementById('user-list');
   const search = document.getElementById('user-search');
@@ -15,6 +16,9 @@
   const confirmDialog = document.getElementById('confirm-dialog');
   const form = document.getElementById('user-form');
   const formError = document.getElementById('form-error');
+  const editDialog = document.getElementById('edit-user-dialog');
+  const editForm = document.getElementById('edit-user-form');
+  const editFormError = document.getElementById('edit-form-error');
   const toast = document.getElementById('toast');
   const sidebar = document.getElementById('sidebar');
   const menuToggle = document.getElementById('mobile-menu');
@@ -29,9 +33,41 @@
   }
 
   function persist(message) {
-    const saved = store.save(users);
     render();
-    notify(saved ? message : `${message} Trình duyệt không cho lưu; thay đổi chỉ giữ trong lần mở này.`);
+    notify(message);
+  }
+
+  function setSaving(value) {
+    saving = value;
+    [form, editForm, confirmDialog].forEach((container) => {
+      container.querySelectorAll('button, input, select').forEach((control) => { control.disabled = value; });
+    });
+    list.querySelectorAll('button').forEach((control) => { control.disabled = value; });
+    document.getElementById('add-user-button').disabled = value;
+  }
+
+  async function loadUsers() {
+    const error = document.getElementById('users-error');
+    const retry = document.getElementById('retry-users');
+    error.hidden = true;
+    retry.hidden = true;
+    document.getElementById('member-count').textContent = 'Đang tải...';
+    document.getElementById('add-user-button').disabled = true;
+    try {
+      users = await store.load();
+      [form, editForm].forEach((target) => {
+        target.elements.role.replaceChildren(...Object.entries(store.roles).map(([value, label]) => new Option(label, value)));
+        const defaultRole = [...target.elements.role.options].find((option) => !store.isAdmin(option.value));
+        if (defaultRole) { defaultRole.defaultSelected = true; defaultRole.selected = true; }
+      });
+      render();
+      document.getElementById('add-user-button').disabled = !Object.keys(store.roles).length;
+    } catch (exception) {
+      error.textContent = exception.message;
+      error.hidden = false;
+      retry.hidden = false;
+      document.getElementById('member-count').textContent = 'Chưa tải được';
+    }
   }
 
   function element(tag, className, text) {
@@ -65,7 +101,7 @@
       item.type = 'button';
       item.addEventListener('click', () => {
         closeMenus();
-        if (action === 'edit') openForm(user, button);
+        if (action === 'edit') openEditForm(user, button);
         if (action === 'toggle') toggleUser(user);
         if (action === 'delete') requestDelete(user, button);
       });
@@ -105,33 +141,45 @@
     });
   }
 
-  function openForm(user = null, trigger = document.getElementById('add-user-button')) {
-    dialogTrigger = trigger;
-    editingId = user?.id ?? null;
+  function openForm() {
+    dialogTrigger = document.getElementById('add-user-button');
     form.reset();
     formError.hidden = true;
-    document.getElementById('dialog-title').textContent = user ? 'Chỉnh sửa người dùng' : 'Thêm người dùng';
-    document.getElementById('save-user-button').textContent = user ? 'Lưu thay đổi' : 'Thêm người dùng';
-    if (user) {
-      ['role', 'status'].forEach((key) => { form.elements[key].value = user[key]; });
-    }
     dialog.showModal();
     form.elements.name.focus();
   }
 
-  function isLastActiveAdmin(user) {
-    return user.role === 'admin' && user.status === 'active'
-      && users.filter((member) => member.role === 'admin' && member.status === 'active').length === 1;
+  function openEditForm(user, trigger) {
+    editingId = user.id;
+    editTrigger = trigger;
+    editForm.reset();
+    editFormError.hidden = true;
+    document.getElementById('edit-user-description').textContent = `Cập nhật vai trò và trạng thái cho ${user.name} (${user.email}).`;
+    editForm.elements.role.value = user.role;
+    editForm.elements.status.value = user.status;
+    editDialog.showModal();
+    editForm.elements.role.focus();
   }
 
-  function toggleUser(user) {
+  function isLastActiveAdmin(user) {
+    return store.isAdmin(user.role) && user.status === 'active'
+      && users.filter((member) => store.isAdmin(member.role) && member.status === 'active').length === 1;
+  }
+
+  async function toggleUser(user) {
+    if (saving) return;
     if (isLastActiveAdmin(user)) {
       notify('Cần giữ ít nhất một quản trị viên đang hoạt động.');
       return;
     }
     const unlocking = user.status === 'locked';
-    users = users.map((member) => member.id === user.id ? { ...member, status: unlocking ? 'active' : 'locked' } : member);
-    persist(`Đã ${unlocking ? 'mở khóa' : 'khóa'} tài khoản ${user.name}.`);
+    setSaving(true);
+    try {
+      const updated = await store.updateAccess(user.id, user.role, unlocking ? 'active' : 'locked');
+      users = users.map((member) => member.id === user.id ? updated : member);
+      persist(`Đã ${unlocking ? 'mở khóa' : 'khóa'} tài khoản ${user.name}.`);
+    } catch (error) { notify(error.message); }
+    finally { setSaving(false); }
   }
 
   function requestDelete(user, trigger) {
@@ -141,49 +189,96 @@
     }
     deletingId = user.id;
     deleteTrigger = trigger;
-    document.getElementById('confirm-description').textContent = `Bạn có chắc muốn xóa ${user.name} (${user.email}) khỏi danh sách trên trình duyệt này?`;
+    document.getElementById('confirm-description').textContent = `Bạn có chắc muốn xóa tài khoản ${user.name} (${user.email}) khỏi hệ thống?`;
     confirmDialog.showModal();
     document.getElementById('cancel-delete').focus();
   }
 
-  form.addEventListener('submit', (event) => {
+  form.addEventListener('submit', async (event) => {
     event.preventDefault();
+    if (saving) return;
     const data = {
+      name: form.elements.name.value.trim(),
+      email: form.elements.email.value.trim(),
+      password: form.elements.password.value,
       role: form.elements.role.value,
       status: form.elements.status.value,
     };
     let error = '';
-    const current = users.find((user) => user.id === editingId);
-    if (current && isLastActiveAdmin(current) && (data.role !== 'admin' || data.status !== 'active')) error = 'Cần giữ ít nhất một quản trị viên đang hoạt động.';
+    if (!data.name) error = 'Vui lòng nhập tên đăng nhập.';
+    else if (new TextEncoder().encode(data.password).length > 72) error = 'Mật khẩu không được vượt quá 72 byte.';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) error = 'Vui lòng nhập email hợp lệ.';
+    else if (users.some((user) => user.email.toLowerCase() === data.email.toLowerCase())) error = 'Email này đã được sử dụng.';
     if (error) {
       formError.textContent = error;
       formError.hidden = false;
       return;
     }
-    const isEditing = Boolean(editingId);
-    if (isEditing) users = users.map((user) => user.id === editingId ? { ...user, ...data } : user);
-    else users.push({ id: `user-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`, ...data });
-    search.value = '';
-    dialog.close();
-    persist(isEditing ? 'Đã cập nhật thông tin người dùng.' : 'Đã thêm người dùng vào đội ngũ.');
-    document.getElementById('add-user-button').focus();
+    setSaving(true);
+    try {
+      const created = await store.create(data);
+      users.push(created);
+      form.reset();
+      search.value = '';
+      dialog.close();
+      persist('Đã thêm người dùng vào database.');
+    } catch (exception) {
+      formError.textContent = exception.message;
+      formError.hidden = false;
+    } finally { setSaving(false); }
+  });
+
+  editForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (saving) return;
+    const current = users.find((user) => user.id === editingId);
+    if (!current) return;
+    const role = editForm.elements.role.value;
+    const status = editForm.elements.status.value;
+    if (isLastActiveAdmin(current) && (!store.isAdmin(role) || status !== 'active')) {
+      editFormError.textContent = 'Cần giữ ít nhất một quản trị viên đang hoạt động.';
+      editFormError.hidden = false;
+      return;
+    }
+    setSaving(true);
+    try {
+      const updated = await store.updateAccess(current.id, role, status);
+      users = users.map((user) => user.id === current.id ? updated : user);
+      search.value = '';
+      persist('Đã lưu vai trò và trạng thái vào database.');
+      editDialog.close();
+    } catch (error) {
+      editFormError.textContent = error.message;
+      editFormError.hidden = false;
+    } finally { setSaving(false); }
   });
 
   document.getElementById('add-user-button').addEventListener('click', () => openForm());
+  document.querySelectorAll('[data-close-edit-dialog]').forEach((button) => button.addEventListener('click', () => editDialog.close()));
+  editDialog.addEventListener('close', () => {
+    editingId = null;
+    if (editTrigger?.isConnected) editTrigger.focus();
+    else document.getElementById('add-user-button').focus();
+  });
   document.querySelectorAll('[data-close-dialog]').forEach((button) => button.addEventListener('click', () => dialog.close()));
   dialog.addEventListener('close', () => { if (dialogTrigger?.isConnected) dialogTrigger.focus(); });
   confirmDialog.addEventListener('close', () => { if (deleteTrigger?.isConnected) deleteTrigger.focus(); });
   document.getElementById('cancel-delete').addEventListener('click', () => confirmDialog.close());
-  document.getElementById('confirm-delete').addEventListener('click', () => {
+  document.getElementById('confirm-delete').addEventListener('click', async () => {
+    if (saving) return;
     const user = users.find((member) => member.id === deletingId);
     if (!user || isLastActiveAdmin(user)) {
       confirmDialog.close();
       return;
     }
-    users = users.filter((member) => member.id !== deletingId);
-    confirmDialog.close();
-    persist(`Đã xóa ${user.name} khỏi danh sách.`);
-    document.getElementById('add-user-button').focus();
+    setSaving(true);
+    try {
+      await store.remove(user.id);
+      users = users.filter((member) => member.id !== user.id);
+      confirmDialog.close();
+      persist(`Đã xóa ${user.name} khỏi database.`);
+    } catch (error) { notify(error.message); }
+    finally { setSaving(false); }
   });
   search.addEventListener('input', render);
   document.getElementById('clear-search').addEventListener('click', () => { search.value = ''; render(); search.focus(); });
@@ -200,7 +295,7 @@
       if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
       else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
     }
-    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k' && !dialog.open && !confirmDialog.open) { event.preventDefault(); search.focus(); }
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k' && !dialog.open && !editDialog.open && !confirmDialog.open) { event.preventDefault(); search.focus(); }
   });
 
   function setSidebar(open) {
@@ -219,6 +314,7 @@
   document.getElementById('notifications-button').addEventListener('click', () => notify('Bạn chưa có thông báo mới.'));
 
   setSidebar(false);
-  render();
-  if (loaded.warning) notify(loaded.warning);
+  [dialog, editDialog, confirmDialog].forEach((modal) => modal.addEventListener('cancel', (event) => { if (saving) event.preventDefault(); }));
+  document.getElementById('retry-users').addEventListener('click', loadUsers);
+  loadUsers();
 })();
