@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#121712">
+  <title>Đăng ký · MediaHub</title>
+  <link rel="stylesheet" href="../features/auth/auth.css">
+  <script src="../features/auth/services/auth-storage.js" defer></script>
+  <script src="../features/auth/auth.js" defer></script>
+</head>
+<body>
+  <div class="auth-shell">
+    <aside class="brand-panel">
+      <div class="brand-top">
+        <div class="brand-mark">m.</div>
+        <span class="brand-name">mediahub</span>
+      </div>
+
+      <div class="brand-main">
+        <p class="eyebrow">CREATE · CONNECT · GROW</p>
+        <h1>Good ideas deserve a better workflow.</h1>
+        <div class="progress-track"><div class="progress-fill" id="progress-fill" data-progress="42"></div></div>
+        <p class="tagline">Sáng tạo nội dung. Đồng bộ đội ngũ. Phát triển thương hiệu.</p>
+      </div>
+
+      <p class="brand-footer">© 2026 MEDIAHUB &nbsp;/&nbsp; ALL-IN-ONE SOCIAL STUDIO</p>
+    </aside>
+
+    <main class="form-panel">
+      <form class="form-card" id="register-form" novalidate>
+        <h2>Bắt đầu hành trình.</h2>
+        <p class="subtitle">Tạo tài khoản để quản lý tất cả tại một nơi.</p>
+
+        <div class="field">
+          <label for="full-name">Họ và tên</label>
+          <input id="full-name" name="full_name" type="text" placeholder="Nguyễn Văn A" autocomplete="name" required>
+          <div class="field-error" data-error-for="full-name"></div>
+        </div>
+
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" placeholder="tenban@congty.com" autocomplete="email" required>
+          <div class="field-error" data-error-for="email"></div>
+        </div>
+
+        <div class="field">
+          <label for="password">Mật khẩu</label>
+          <div class="input-wrap">
+            <input id="password" name="password" type="password" placeholder="Tối thiểu 8 ký tự" autocomplete="new-password" minlength="8" required>
+            <button type="button" class="toggle-visibility" id="toggle-password">Hiện</button>
+          </div>
+          <p class="hint" id="password-hint">Mật khẩu cần ít nhất 8 ký tự</p>
+        </div>
+
+        <button type="submit" class="submit-btn" id="submit-btn">
+          <span class="btn-label">Tạo tài khoản ↗</span>
+          <span class="spinner"></span>
+        </button>
+
+        <p class="switch-line">Đã có tài khoản? <a href="login.html">Đăng nhập</a></p>
+      </form>
+    </main>
+  </div>
+
+  <dialog id="success-dialog">
+    <div class="success-icon">✓</div>
+    <h2 id="success-title">Tạo tài khoản thành công!</h2>
+    <p id="success-message">Đang chuyển hướng tới trang đăng nhập...</p>
+  </dialog>
+</body>
+</html>
