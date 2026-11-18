@@ -5,9 +5,16 @@ from typing import Optional
 
 class UserCreate(BaseModel):
     username: str = Field(min_length=3, max_length=50)
-    email: EmailStr
+    email: EmailStr = Field(max_length=100)
     password: str = Field(min_length=8)
     role_id: int
+    status: bool = True
+
+
+class UserAccessUpdate(BaseModel):
+    model_config = {"extra": "forbid"}
+    role_id: int
+    status: bool
 
 
 class UserUpdate(BaseModel):
