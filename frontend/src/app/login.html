@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#121712">
+  <title>Đăng nhập · MediaHub</title>
+  <link rel="stylesheet" href="../features/auth/auth.css">
+  <script src="../features/auth/services/auth-storage.js" defer></script>
+  <script src="../features/auth/auth.js" defer></script>
+</head>
+<body>
+  <div class="auth-shell">
+    <aside class="brand-panel">
+      <div class="brand-top">
+        <div class="brand-mark">m.</div>
+        <span class="brand-name">mediahub</span>
+      </div>
+
+      <div class="brand-main">
+        <p class="eyebrow">CREATE · CONNECT · GROW</p>
+        <h1>Good ideas deserve a better workflow.</h1>
+        <div class="progress-track"><div class="progress-fill" id="progress-fill" data-progress="100"></div></div>
+        <p class="tagline">Sáng tạo nội dung. Đồng bộ đội ngũ. Phát triển thương hiệu.</p>
+      </div>
+
+      <p class="brand-footer">© 2026 MEDIAHUB &nbsp;/&nbsp; ALL-IN-ONE SOCIAL STUDIO</p>
+    </aside>
+
+    <main class="form-panel">
+      <form class="form-card" id="login-form" novalidate>
+        <h2>Chào mừng trở lại.</h2>
+        <p class="subtitle">Đăng nhập để tiếp tục công việc của bạn.</p>
+
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" placeholder="tenban@congty.com" autocomplete="email" required>
+        </div>
+
+        <div class="field">
+          <label for="password">Mật khẩu</label>
+          <div class="input-wrap">
+            <input id="password" name="password" type="password" placeholder="Nhập mật khẩu" autocomplete="current-password" required>
+            <button type="button" class="toggle-visibility" id="toggle-password">Hiện</button>
+          </div>
+          <div class="field-error" id="login-error"></div>
+        </div>
+
+        <button type="submit" class="submit-btn" id="submit-btn">
+          <span class="btn-label">Đăng nhập ↗</span>
+          <span class="spinner"></span>
+        </button>
+
+        <p class="switch-line">Chưa có tài khoản? <a href="register.html">Đăng ký</a></p>
+      </form>
+    </main>
+  </div>
+
+  <dialog id="success-dialog">
+    <div class="success-icon">✓</div>
+    <h2 id="success-title">Đăng nhập thành công!</h2>
+    <p id="success-message">Đang chuyển hướng tới trang chính...</p>
+  </dialog>
+</body>
+</html>
