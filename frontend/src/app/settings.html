@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="../styles/style.css">
   <link rel="stylesheet" href="../features/settings/settings.css">
   <script src="../features/settings/services/settings-storage.js" defer></script>
+  <script src="../features/settings/services/settings-api.js" defer></script>
   <script src="../features/settings/settings.js" defer></script>
 </head>
 <body>
@@ -19,6 +20,7 @@
     <symbol id="icon-task" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="m8 12 3 3 5-6"/></symbol>
     <symbol id="icon-chart" viewBox="0 0 24 24"><path d="M4 20v-7M10 20V8M16 20V4M22 20V10"/></symbol>
     <symbol id="icon-users" viewBox="0 0 24 24"><circle cx="9" cy="7" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3M16 4a3 3 0 0 1 0 6M21 21v-3a6 6 0 0 0-4-5"/></symbol>
+    <symbol id="icon-logout" viewBox="0 0 24 24"><path d="M9 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h4M16 8l4 4-4 4M20 12H9"/></symbol>
     <symbol id="icon-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></symbol>
     <symbol id="icon-bell" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></symbol>
     <symbol id="icon-chevron" viewBox="0 0 24 24"><path d="m8 10 4 4 4-4"/></symbol>
@@ -51,8 +53,9 @@
           <button type="button" id="manage-plan">Quản lý gói <svg class="icon"><use href="#icon-arrow"/></svg></button>
         </div>
         <button class="account-button" type="button" id="account-button">
-          <span class="avatar avatar-account">Q</span><span>Minh Quân</span><svg class="icon"><use href="#icon-chevron"/></svg>
+          <span class="avatar avatar-account" id="user-initial" aria-hidden="true">?</span><span id="user-name">Chưa đăng nhập</span><svg class="icon"><use href="#icon-chevron"/></svg>
         </button>
+        <button class="nav-item" type="button" id="logout-button" hidden><svg class="icon"><use href="#icon-logout"/></svg><span>Đăng xuất</span></button>
       </div>
     </aside>
 
@@ -62,18 +65,33 @@
         <div class="breadcrumb"><span>MediaHub</span><span class="breadcrumb-divider">/</span><span>Cấu hình hệ thống</span></div>
         <div class="topbar-actions">
           <button type="button" class="icon-button notification-button" id="notifications-button" aria-label="Thông báo"><svg class="icon"><use href="#icon-bell"/></svg></button>
-          <button type="button" class="profile-button" id="profile-button"><span class="avatar profile-avatar">MQ</span><span>Quản trị viên</span></button>
+          <button type="button" class="profile-button" id="profile-button"><span class="avatar profile-avatar" id="user-initials" aria-hidden="true">?</span><span id="user-role">Chưa đăng nhập</span></button>
         </div>
       </header>
 
       <main class="page-content" id="main-content">
         <section class="page-heading" aria-labelledby="page-title">
-          <div><p class="eyebrow">Quản trị hệ thống</p><h1 id="page-title">Cấu hình hệ thống.</h1><p class="page-description">Múi giờ, quy tắc trạng thái bài đăng và các thông số vận hành.</p></div>
+          <div><p class="eyebrow">Quản trị hệ thống</p><h1 id="page-title">Cấu hình hệ thống.</h1><p class="page-description">Múi giờ, quy tắc trạng thái bài đăng và các thông số vận hành.</p><p class="last-update" id="last-update" hidden></p></div>
         </section>
 
         <p class="access-denied" id="access-denied" role="alert" hidden>Chỉ Quản trị viên được xem và thay đổi cấu hình hệ thống.</p>
 
-        <form id="settings-form" novalidate>
+        <div class="access-denied load-error" id="load-error" role="alert" hidden>
+          <span>Không kết nối được máy chủ nên chưa tải được cấu hình. Kiểm tra backend đã chạy chưa.</span>
+          <button type="button" class="button button-secondary" id="retry-load">Thử lại</button>
+        </div>
+
+        <section class="settings-card login-card" id="login-panel" aria-labelledby="login-title" hidden>
+          <div class="card-header"><h2 class="card-title" id="login-title">Đăng nhập để cấu hình hệ thống</h2><p class="card-description" id="login-note">Dùng tài khoản Quản trị viên của hệ thống.</p></div>
+          <form id="login-form" novalidate>
+            <p class="form-error" id="login-error" role="alert" hidden></p>
+            <div class="setting-field"><label for="login-username">Tên đăng nhập hoặc email</label><input id="login-username" name="username" type="text" autocomplete="username"></div>
+            <div class="setting-field"><label for="login-password">Mật khẩu</label><input id="login-password" name="password" type="password" autocomplete="current-password"></div>
+            <div class="dialog-footer"><button type="submit" class="button button-primary" id="login-submit">Đăng nhập</button></div>
+          </form>
+        </section>
+
+        <form id="settings-form" novalidate hidden>
           <p class="form-error" id="form-error" role="alert" hidden></p>
           <fieldset class="settings-fieldset" id="settings-fieldset">
             <legend class="visually-hidden">Cấu hình hệ thống</legend>
