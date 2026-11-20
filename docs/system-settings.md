@@ -7,7 +7,8 @@ Mở `frontend/src/app/settings.html` trực tiếp bằng trình duyệt hoặc
 - `frontend/src/app/settings.html`: bố cục trang, thanh điều hướng, biểu mẫu và hộp thoại xác nhận.
 - `frontend/src/features/settings/settings.css`: thẻ cấu hình, nút bật/tắt, thanh thao tác, lịch sử và hộp thoại.
 - `frontend/src/features/settings/settings.js`: dựng biểu mẫu, hiển thị lỗi từng trường, xác nhận tác động, lưu và hiển thị lịch sử.
-- `frontend/src/features/settings/services/settings-storage.js`: danh sách mục cấu hình (nhãn, khoảng giá trị, mặc định), kiểm tra giá trị, so sánh thay đổi, lưu trên trình duyệt và lịch sử.
+- `frontend/src/features/settings/services/settings-storage.js`: danh sách mục cấu hình (nhãn, khoảng giá trị, mặc định), kiểm tra giá trị, so sánh thay đổi, định dạng thời gian.
+- `frontend/src/features/settings/services/settings-api.js`: gọi backend (đăng nhập, lấy người dùng, đọc/lưu cấu hình, lịch sử) bằng token JWT.
 
 ## Các nhóm cấu hình
 
@@ -21,10 +22,12 @@ Mở `frontend/src/app/settings.html` trực tiếp bằng trình duyệt hoặc
 - Giá trị không hợp lệ: báo lỗi ngay tại trường, **không lưu gì** và giữ nguyên cấu hình đang áp dụng.
 - Thay đổi có ảnh hưởng (đổi múi giờ, đổi quy tắc duyệt, bật/tắt tích hợp): hiện hộp thoại liệt kê tác động và chỉ lưu khi người dùng xác nhận.
 - Mỗi lần lưu ghi một mục lịch sử: ai đổi, lúc nào, đổi gì (giá trị cũ → giá trị mới). Giữ tối đa 100 mục mới nhất.
-- Chỉ vai trò Quản trị viên được xem và sửa. Hiện người dùng được gán cố định trong `settings-storage.js`; thay bằng phiên đăng nhập thật khi có UC01.
+- Chỉ vai trò Quản trị viên được xem và sửa. Người dùng khác đăng nhập chỉ thấy tên, logo và thông báo "Chỉ Quản trị viên được xem và thay đổi cấu hình hệ thống.". Backend kiểm tra quyền thật (403).
+- Sau khi đăng nhập, header hiện logo (chữ cái đầu) và tên người dùng, vai trò. Dòng "Cập nhật lần cuối bởi ... lúc ..." cho biết ai lưu gần nhất.
 - Không có trường nhập khóa bí mật hay token.
-- Dữ liệu lưu ở `localStorage` với khóa `mediahub.settings.v1` (cấu hình) và `mediahub.settings.history.v1` (lịch sử). Nếu lưu trữ bị chặn, trang thông báo và giữ thay đổi trong lần mở hiện tại.
+- Cấu hình và lịch sử lưu ở **database** qua API (`docs/system-settings-api.md`), không lưu trong trình duyệt. Trình duyệt chỉ giữ token đăng nhập (`localStorage`, khóa `mediahub.token`).
+- Người lưu được ghi ở database: cột `updated_by`, `updated_at` của bảng `system_settings` và bảng `activity_logs`.
 
 ## Phạm vi
 
-Đây là giao diện frontend độc lập. Khi có backend, thay lớp lưu trữ bằng API, đồng thời kiểm tra quyền Admin, kiểm tra giá trị và ghi nhật ký hoạt động ở phía server. Các kiểm tra ở frontend không phải cơ chế bảo mật.
+Khung đăng nhập trên trang cấu hình là tạm thời, dùng khi trang Đăng nhập chung của nhóm chưa lưu token. Trang đăng nhập chung chỉ cần lưu `access_token` từ `POST /auth/login` vào `localStorage` với khóa `mediahub.token` thì trang cấu hình tự dùng được. Việc ẩn trang với người không phải Admin chỉ để giao diện gọn; quyền thật do backend kiểm tra.
