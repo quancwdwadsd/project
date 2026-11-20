@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="api-base-url" content="http://127.0.0.1:8000">
   <meta name="theme-color" content="#151e1a">
   <title>Thành viên · MediaHub</title>
   <link rel="stylesheet" href="../styles/style.css">
@@ -76,7 +77,9 @@
         </section>
 
         <section class="members-card" aria-labelledby="members-title">
-          <div class="members-header"><h2 id="members-title">Danh sách thành viên</h2><span class="member-count" id="member-count">04 người dùng</span></div>
+          <div class="members-header"><h2 id="members-title">Danh sách thành viên</h2><span class="member-count" id="member-count">Đang tải...</span></div>
+          <p id="users-error" class="form-error" role="alert" hidden></p>
+          <button type="button" class="button button-secondary" id="retry-users" hidden>Thử tải lại</button>
           <div class="user-list" id="user-list" aria-label="Danh sách người dùng"></div>
           <div class="empty-state" id="empty-state" hidden><svg class="icon"><use href="#icon-search"/></svg><h3>Không tìm thấy thành viên</h3><p>Thử tìm bằng tên, email hoặc vai trò khác.</p><button class="button button-secondary" id="clear-search" type="button">Xóa tìm kiếm</button></div>
           <p class="search-summary visually-hidden" id="search-summary" role="status"></p>
@@ -89,12 +92,28 @@
     <form id="user-form">
       <div class="dialog-heading"><div><p class="eyebrow">Quản lý thành viên</p><h2 id="dialog-title">Thêm người dùng</h2></div><button class="icon-button" type="button" data-close-dialog aria-label="Đóng"><svg class="icon"><use href="#icon-close"/></svg></button></div>
       <p class="dialog-description">Thiết lập thông tin và vai trò cho thành viên trong đội ngũ.</p>
+      <label class="form-field" for="user-name">Tên đăng nhập <span aria-hidden="true">*</span><input id="user-name" name="name" type="text" placeholder="Nhập tên đăng nhập" autocomplete="username" minlength="3" maxlength="50" required></label>
+      <label class="form-field" for="user-email">Email <span aria-hidden="true">*</span><input id="user-email" name="email" type="email" placeholder="Nhập địa chỉ email" autocomplete="email" maxlength="100" required></label>
+      <label class="form-field" for="user-password">Mật khẩu <span aria-hidden="true">*</span><input id="user-password" name="password" type="password" autocomplete="new-password" minlength="8" required></label>
       <div class="form-grid">
         <label class="form-field" for="user-role">Vai trò<select id="user-role" name="role"><option value="admin">Quản trị viên</option><option value="manager">Quản lý</option><option value="editor">Biên tập viên</option><option value="employee" selected>Nhân viên</option><option value="viewer">Người xem báo cáo</option></select></label>
-        <label class="form-field" for="user-status">Trạng thái<select id="user-status" name="status"><option value="active">Hoạt động</option><option value="pending" selected>Chờ xác minh</option><option value="locked">Đã khóa</option></select></label>
+        <label class="form-field" for="user-status">Trạng thái<select id="user-status" name="status"><option value="active" selected>Hoạt động</option><option value="locked">Đã khóa</option></select></label>
       </div>
       <p class="form-error" id="form-error" role="alert" hidden></p>
       <div class="dialog-footer"><button class="button button-secondary" type="button" data-close-dialog>Hủy</button><button class="button button-primary" type="submit" id="save-user-button">Thêm người dùng</button></div>
+    </form>
+  </dialog>
+
+  <dialog class="user-dialog" id="edit-user-dialog" aria-labelledby="edit-dialog-title">
+    <form id="edit-user-form">
+      <div class="dialog-heading"><div><p class="eyebrow">Quản lý thành viên</p><h2 id="edit-dialog-title">Chỉnh sửa người dùng</h2></div><button class="icon-button" type="button" data-close-edit-dialog aria-label="Đóng"><svg class="icon"><use href="#icon-close"/></svg></button></div>
+      <p class="dialog-description" id="edit-user-description"></p>
+      <div class="form-grid">
+        <label class="form-field" for="edit-user-role">Vai trò<select id="edit-user-role" name="role"><option value="admin">Quản trị viên</option><option value="manager">Quản lý</option><option value="editor">Biên tập viên</option><option value="employee">Nhân viên</option><option value="viewer">Người xem báo cáo</option></select></label>
+        <label class="form-field" for="edit-user-status">Trạng thái<select id="edit-user-status" name="status"><option value="active">Hoạt động</option><option value="locked">Đã khóa</option></select></label>
+      </div>
+      <p class="form-error" id="edit-form-error" role="alert" hidden></p>
+      <div class="dialog-footer"><button class="button button-secondary" type="button" data-close-edit-dialog>Hủy</button><button class="button button-primary" type="submit">Lưu thay đổi</button></div>
     </form>
   </dialog>
 

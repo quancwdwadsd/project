@@ -1,9 +1,11 @@
 import os
+import ssl
+from pathlib import Path
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, URL
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-load_dotenv()
+load_dotenv(Path(__file__).with_name('.env'))
 
 DATABASE_URL = URL.create(
     drivername="mysql+pymysql",
@@ -18,7 +20,9 @@ DATABASE_URL = URL.create(
 engine = create_engine(
     DATABASE_URL,
     echo=True,
-    pool_pre_ping=True
+    pool_pre_ping=True,
+    connect_args={"ssl": ssl.create_default_context()}
+    if os.getenv("DB_SSL", "false").lower() == "true" else {}
 )
 
 SessionLocal = sessionmaker(

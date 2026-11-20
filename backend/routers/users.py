@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 import bcrypt
 
 from database import get_db
@@ -11,11 +12,63 @@ from schemas import (
     UserStatusUpdate,
     UserResponse
 )
+from schemas import UserAccessUpdate
+from security import require_roles
 
 router = APIRouter(
     prefix="/users",
-    tags=["Users"]
+    tags=["Users"],
+    dependencies=[Depends(require_roles("Admin"))],
 )
+
+
+@router.get("/roles")
+def get_roles(db: Session = Depends(get_db)):
+    return [{"id": role.id, "name": role.role_name}
+            for role in db.query(Role).order_by(Role.id).all()]
+
+
+def access_change(db, user_id, role_id=None, status=None, delete=False):
+    # Lock users in a consistent order so concurrent changes cannot remove both admins.
+    users = db.query(User).order_by(User.id).populate_existing().with_for_update().all()
+    user = next((item for item in users if item.id == user_id), None)
+    if user is None:
+        raise HTTPException(404, "User not found")
+    roles = {role.id: role for role in db.query(Role).all()}
+    target_role = roles.get(role_id if role_id is not None else user.role_id)
+    if target_role is None:
+        raise HTTPException(404, "Role not found")
+    target_status = user.status if status is None else status
+    admin_ids = {role.id for role in roles.values() if role.role_name.lower() == "admin"}
+    if (user.role_id in admin_ids and user.status
+            and (delete or target_role.id not in admin_ids or not target_status)
+            and not any(item.id != user.id and item.role_id in admin_ids and item.status for item in users)):
+        raise HTTPException(409, "Cần giữ ít nhất một quản trị viên đang hoạt động.")
+    if delete:
+        db.delete(user)
+    else:
+        user.role_id = target_role.id
+        user.status = target_status
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(409, "Không thể xóa người dùng đang có dữ liệu liên quan.")
+    if delete:
+        return None
+    db.refresh(user)
+    return {"id": user.id, "username": user.username, "email": user.email,
+            "role_id": user.role_id, "role_name": target_role.role_name, "status": user.status}
+
+
+@router.patch("/{user_id}/access", response_model=UserResponse)
+def update_user_access(user_id: int, data: UserAccessUpdate, db: Session = Depends(get_db)):
+    return access_change(db, user_id, data.role_id, data.status)
+
+
+@router.delete("/{user_id}", status_code=204)
+def delete_user(user_id: int, db: Session = Depends(get_db)):
+    access_change(db, user_id, delete=True)
 
 
 # GET /users/
@@ -92,6 +145,8 @@ def create_user(
             detail="Role not found"
         )
 
+    if len(user_data.password.encode("utf-8")) > 72:
+        raise HTTPException(422, "Mật khẩu không được vượt quá 72 byte.")
     password_hash = bcrypt.hashpw(
         user_data.password.encode("utf-8"),
         bcrypt.gensalt()
@@ -101,11 +156,16 @@ def create_user(
         username=user_data.username,
         email=user_data.email,
         password_hash=password_hash,
-        role_id=user_data.role_id
+        role_id=user_data.role_id,
+        status=user_data.status
     )
 
     db.add(new_user)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(409, "Username or email already exists")
     db.refresh(new_user)
 
     return {
@@ -174,39 +234,7 @@ def update_user_role(
     role_data: UserRoleUpdate,
     db: Session = Depends(get_db)
 ):
-    user = db.query(User).filter(
-        User.id == user_id
-    ).first()
-
-    if not user:
-        raise HTTPException(
-            status_code=404,
-            detail="User not found"
-        )
-
-    role = db.query(Role).filter(
-        Role.id == role_data.role_id
-    ).first()
-
-    if not role:
-        raise HTTPException(
-            status_code=404,
-            detail="Role not found"
-        )
-
-    user.role_id = role.id
-
-    db.commit()
-    db.refresh(user)
-
-    return {
-        "id": user.id,
-        "username": user.username,
-        "email": user.email,
-        "role_id": user.role_id,
-        "role_name": role.role_name,
-        "status": user.status
-    }
+    return access_change(db, user_id, role_id=role_data.role_id)
 
 
 # PATCH /users/{user_id}/status
@@ -216,30 +244,4 @@ def update_user_status(
     status_data: UserStatusUpdate,
     db: Session = Depends(get_db)
 ):
-    user = db.query(User).filter(
-        User.id == user_id
-    ).first()
-
-    if not user:
-        raise HTTPException(
-            status_code=404,
-            detail="User not found"
-        )
-
-    user.status = status_data.status
-
-    db.commit()
-    db.refresh(user)
-
-    role = db.query(Role).filter(
-        Role.id == user.role_id
-    ).first()
-
-    return {
-        "id": user.id,
-        "username": user.username,
-        "email": user.email,
-        "role_id": user.role_id,
-        "role_name": role.role_name,
-        "status": user.status
-    }
+    return access_change(db, user_id, status=status_data.status)

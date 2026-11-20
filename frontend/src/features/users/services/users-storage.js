@@ -1,48 +1,47 @@
 (() => {
   'use strict';
-
-  const STORAGE_KEY = 'mediahub.users.v1';
-  const roles = Object.freeze({ admin: 'Quản trị viên', manager: 'Quản lý', editor: 'Biên tập viên', employee: 'Nhân viên', viewer: 'Người xem báo cáo' });
-  const statuses = Object.freeze({ active: 'Hoạt động', pending: 'Chờ xác minh', locked: 'Đã khóa' });
-  const initialUsers = [
-    { id: 'user-1', name: 'Nguyễn Văn A', email: 'admin@mediahub.vn', role: 'admin', status: 'active' },
-    { id: 'user-2', name: 'Trần Thị B', email: 'tranb@mediahub.vn', role: 'manager', status: 'active' },
-    { id: 'user-3', name: 'Lê Văn C', email: 'levanc@mediahub.vn', role: 'editor', status: 'active' },
-    { id: 'user-4', name: 'Phạm Thị D', email: 'phamd@mediahub.vn', role: 'employee', status: 'pending' },
-  ];
-
-  const isValidUser = (user) => user && typeof user.id === 'string' && user.id.length > 0
-    && typeof user.name === 'string' && user.name.trim().length > 0 && user.name.length <= 80
-    && typeof user.email === 'string' && user.email.length <= 254
-    && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(user.email)
-    && Object.hasOwn(roles, user.role) && Object.hasOwn(statuses, user.status);
-
-  function load() {
+  const baseUrl = (document.querySelector('meta[name="api-base-url"]')?.content || 'http://127.0.0.1:8000').replace(/\/$/, '');
+  const roles = {};
+  const statuses = Object.freeze({ active: 'Hoạt động', locked: 'Đã khóa' });
+  const roleNames = { admin: 'Quản trị viên', manager: 'Quản lý', editor: 'Biên tập viên', employee: 'Nhân viên', viewer: 'Người xem báo cáo' };
+  const adminRoles = new Set();
+  async function request(path, method = 'GET', data) {
+    let response;
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored !== null) {
-        const users = JSON.parse(stored);
-        if (Array.isArray(users) && users.every(isValidUser)
-          && new Set(users.map((user) => user.id)).size === users.length
-          && new Set(users.map((user) => user.email.toLowerCase())).size === users.length) {
-          return { users, warning: null };
-        }
-        return { users: structuredClone(initialUsers), warning: 'Dữ liệu đã lưu không hợp lệ. Đang hiển thị danh sách mẫu.' };
-      }
-    } catch {
-      return { users: structuredClone(initialUsers), warning: 'Không đọc được dữ liệu đã lưu. Đang hiển thị danh sách mẫu.' };
+      response = await fetch(`${baseUrl}${path}`, {
+        method, headers: { 'Content-Type': 'application/json' },
+        ...(data === undefined ? {} : { body: JSON.stringify(data) }),
+        signal: AbortSignal.timeout(15000),
+      });
+    } catch { throw new Error('Không kết nối được máy chủ. Vui lòng kiểm tra backend và thử lại.'); }
+    if (!response.ok) {
+      const result = await response.json().catch(() => ({}));
+      const detail = result.detail;
+      throw new Error(Array.isArray(detail) ? detail.map((item) => `${item.loc.at(-1)}: ${item.msg}`).join('; ') : detail || 'Không thể lưu dữ liệu. Vui lòng thử lại.');
     }
-    return { users: structuredClone(initialUsers), warning: null };
+    return response.status === 204 ? null : response.json();
   }
-
-  function save(users) {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
-      return true;
-    } catch {
-      return false;
-    }
+  function toUser(user) {
+    return { id: user.id, name: user.username, email: user.email, role: String(user.role_id), status: user.status ? 'active' : 'locked' };
   }
-
-  window.MediaHubUsers = Object.freeze({ load, save, roles, statuses });
+  async function load() {
+    const [roleList, userList] = await Promise.all([request('/users/roles'), request('/users/')]);
+    Object.keys(roles).forEach((key) => delete roles[key]);
+    adminRoles.clear();
+    roleList.forEach((role) => {
+      roles[String(role.id)] = roleNames[role.name.toLowerCase()] || role.name;
+      if (role.name.toLowerCase() === 'admin') adminRoles.add(String(role.id));
+    });
+    return userList.map(toUser);
+  }
+  async function create(data) {
+    return toUser(await request('/users/', 'POST', {
+      username: data.name, email: data.email, password: data.password,
+      role_id: Number(data.role), status: data.status === 'active',
+    }));
+  }
+  async function updateAccess(id, role, status) {
+    return toUser(await request(`/users/${id}/access`, 'PATCH', { role_id: Number(role), status: status === 'active' }));
+  }
+  window.MediaHubUsers = Object.freeze({ load, create, updateAccess, remove: (id) => request(`/users/${id}`, 'DELETE'), roles, statuses, isAdmin: (role) => adminRoles.has(role) });
 })();

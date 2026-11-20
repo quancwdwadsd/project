@@ -1,0 +1,1741 @@
+{
+  "date": "2026-11-18",
+  "database": "SQLite in memory; foreign_keys=ON",
+  "auth": "Real login and JWT; only get_db overridden",
+  "summary": {
+    "passed": 143,
+    "failed": 12
+  },
+  "checks": 155,
+  "covered_endpoints": 50,
+  "total_endpoints": 51,
+  "untested_endpoints": [
+    [
+      "GET",
+      "/test-db"
+    ]
+  ],
+  "results": [
+    {
+      "name": "Home",
+      "method": "GET",
+      "url": "/",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "OpenAPI",
+      "method": "GET",
+      "url": "/openapi.json",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Login admin",
+      "method": "POST",
+      "url": "/auth/login",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Login manager",
+      "method": "POST",
+      "url": "/auth/login",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Login editor",
+      "method": "POST",
+      "url": "/auth/login",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Login other",
+      "method": "POST",
+      "url": "/auth/login",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Login viewer",
+      "method": "POST",
+      "url": "/auth/login",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Login by email",
+      "method": "POST",
+      "url": "/auth/login",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Login wrong password",
+      "method": "POST",
+      "url": "/auth/login",
+      "expected": [
+        401
+      ],
+      "actual": 401,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Login unknown account",
+      "method": "POST",
+      "url": "/auth/login",
+      "expected": [
+        401
+      ],
+      "actual": 401,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Login disabled account",
+      "method": "POST",
+      "url": "/auth/login",
+      "expected": [
+        403
+      ],
+      "actual": 403,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Login password over 72 bytes",
+      "method": "POST",
+      "url": "/auth/login",
+      "expected": [
+        401,
+        422
+      ],
+      "actual": 500,
+      "passed": false,
+      "detail": ""
+    },
+    {
+      "name": "Login missing fields",
+      "method": "POST",
+      "url": "/auth/login",
+      "expected": [
+        422
+      ],
+      "actual": 422,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Reject expired token",
+      "method": "GET",
+      "url": "/posts/",
+      "expected": [
+        401
+      ],
+      "actual": 401,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Reject missing token subject",
+      "method": "GET",
+      "url": "/posts/",
+      "expected": [
+        401
+      ],
+      "actual": 401,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Reject disabled account token",
+      "method": "GET",
+      "url": "/posts/",
+      "expected": [
+        401
+      ],
+      "actual": 401,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Reject deleted account token",
+      "method": "GET",
+      "url": "/posts/",
+      "expected": [
+        401
+      ],
+      "actual": 401,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "posts list",
+      "method": "GET",
+      "url": "/posts/",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "posts requires login",
+      "method": "GET",
+      "url": "/posts/",
+      "expected": [
+        401,
+        403
+      ],
+      "actual": 401,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "posts rejects invalid token",
+      "method": "GET",
+      "url": "/posts/",
+      "expected": [
+        401
+      ],
+      "actual": 401,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "channels list",
+      "method": "GET",
+      "url": "/channels/",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "channels requires login",
+      "method": "GET",
+      "url": "/channels/",
+      "expected": [
+        401,
+        403
+      ],
+      "actual": 401,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "channels rejects invalid token",
+      "method": "GET",
+      "url": "/channels/",
+      "expected": [
+        401
+      ],
+      "actual": 401,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "schedules list",
+      "method": "GET",
+      "url": "/schedules/",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "schedules requires login",
+      "method": "GET",
+      "url": "/schedules/",
+      "expected": [
+        401,
+        403
+      ],
+      "actual": 401,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "schedules rejects invalid token",
+      "method": "GET",
+      "url": "/schedules/",
+      "expected": [
+        401
+      ],
+      "actual": 401,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "tasks list",
+      "method": "GET",
+      "url": "/tasks/",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "tasks requires login",
+      "method": "GET",
+      "url": "/tasks/",
+      "expected": [
+        401,
+        403
+      ],
+      "actual": 401,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "tasks rejects invalid token",
+      "method": "GET",
+      "url": "/tasks/",
+      "expected": [
+        401
+      ],
+      "actual": 401,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "media list",
+      "method": "GET",
+      "url": "/media/",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "media requires login",
+      "method": "GET",
+      "url": "/media/",
+      "expected": [
+        401,
+        403
+      ],
+      "actual": 401,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "media rejects invalid token",
+      "method": "GET",
+      "url": "/media/",
+      "expected": [
+        401
+      ],
+      "actual": 401,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "interactions list",
+      "method": "GET",
+      "url": "/interactions/",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "interactions requires login",
+      "method": "GET",
+      "url": "/interactions/",
+      "expected": [
+        401,
+        403
+      ],
+      "actual": 401,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "interactions rejects invalid token",
+      "method": "GET",
+      "url": "/interactions/",
+      "expected": [
+        401
+      ],
+      "actual": 401,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "metrics list",
+      "method": "GET",
+      "url": "/metrics/",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "metrics requires login",
+      "method": "GET",
+      "url": "/metrics/",
+      "expected": [
+        401,
+        403
+      ],
+      "actual": 401,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "metrics rejects invalid token",
+      "method": "GET",
+      "url": "/metrics/",
+      "expected": [
+        401
+      ],
+      "actual": 401,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "activity-logs list",
+      "method": "GET",
+      "url": "/activity-logs/",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "activity-logs requires login",
+      "method": "GET",
+      "url": "/activity-logs/",
+      "expected": [
+        401,
+        403
+      ],
+      "actual": 401,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "activity-logs rejects invalid token",
+      "method": "GET",
+      "url": "/activity-logs/",
+      "expected": [
+        401
+      ],
+      "actual": 401,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "posts missing resource",
+      "method": "GET",
+      "url": "/posts/999999",
+      "expected": [
+        404
+      ],
+      "actual": 404,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "channels missing resource",
+      "method": "GET",
+      "url": "/channels/999999",
+      "expected": [
+        404
+      ],
+      "actual": 404,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "schedules missing resource",
+      "method": "GET",
+      "url": "/schedules/999999",
+      "expected": [
+        404
+      ],
+      "actual": 404,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "tasks missing resource",
+      "method": "GET",
+      "url": "/tasks/999999",
+      "expected": [
+        404
+      ],
+      "actual": 404,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "media missing resource",
+      "method": "GET",
+      "url": "/media/999999",
+      "expected": [
+        404
+      ],
+      "actual": 404,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "interactions missing resource",
+      "method": "GET",
+      "url": "/interactions/999999",
+      "expected": [
+        404
+      ],
+      "actual": 404,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "activity-logs missing resource",
+      "method": "GET",
+      "url": "/activity-logs/999999",
+      "expected": [
+        404
+      ],
+      "actual": 404,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Roles list",
+      "method": "GET",
+      "url": "/users/roles",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Users list",
+      "method": "GET",
+      "url": "/users/",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "User detail",
+      "method": "GET",
+      "url": "/users/3",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "User missing",
+      "method": "GET",
+      "url": "/users/999999",
+      "expected": [
+        404
+      ],
+      "actual": 404,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Create user with disabled status",
+      "method": "POST",
+      "url": "/users/",
+      "expected": [
+        201
+      ],
+      "actual": 201,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Duplicate user",
+      "method": "POST",
+      "url": "/users/",
+      "expected": [
+        400
+      ],
+      "actual": 400,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Create user rejects unknown role",
+      "method": "POST",
+      "url": "/users/",
+      "expected": [
+        404
+      ],
+      "actual": 404,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Create user rejects short password",
+      "method": "POST",
+      "url": "/users/",
+      "expected": [
+        422
+      ],
+      "actual": 422,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Create user rejects long password",
+      "method": "POST",
+      "url": "/users/",
+      "expected": [
+        422
+      ],
+      "actual": 422,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Create user rejects unicode password over 72 bytes",
+      "method": "POST",
+      "url": "/users/",
+      "expected": [
+        422
+      ],
+      "actual": 422,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Create user rejects invalid email",
+      "method": "POST",
+      "url": "/users/",
+      "expected": [
+        422
+      ],
+      "actual": 422,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Create user rejects short username",
+      "method": "POST",
+      "url": "/users/",
+      "expected": [
+        422
+      ],
+      "actual": 422,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Update identity",
+      "method": "PUT",
+      "url": "/users/7",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Update duplicate identity",
+      "method": "PUT",
+      "url": "/users/7",
+      "expected": [
+        400
+      ],
+      "actual": 400,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Update access",
+      "method": "PATCH",
+      "url": "/users/7/access",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Access rejects extra fields",
+      "method": "PATCH",
+      "url": "/users/7/access",
+      "expected": [
+        422
+      ],
+      "actual": 422,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Access rejects missing role",
+      "method": "PATCH",
+      "url": "/users/7/access",
+      "expected": [
+        404
+      ],
+      "actual": 404,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Access failed transaction preserves data",
+      "method": "GET",
+      "url": "/users/7",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Change role",
+      "method": "PATCH",
+      "url": "/users/7/role",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Change status",
+      "method": "PATCH",
+      "url": "/users/7/status",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Protect last admin /access",
+      "method": "PATCH",
+      "url": "/users/1/access",
+      "expected": [
+        409
+      ],
+      "actual": 409,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Protect last admin /role",
+      "method": "PATCH",
+      "url": "/users/1/role",
+      "expected": [
+        409
+      ],
+      "actual": 409,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Protect last admin /status",
+      "method": "PATCH",
+      "url": "/users/1/status",
+      "expected": [
+        409
+      ],
+      "actual": 409,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Protect last admin delete",
+      "method": "DELETE",
+      "url": "/users/1",
+      "expected": [
+        409
+      ],
+      "actual": 409,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Delete user",
+      "method": "DELETE",
+      "url": "/users/7",
+      "expected": [
+        204
+      ],
+      "actual": 204,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Deleted user missing",
+      "method": "GET",
+      "url": "/users/7",
+      "expected": [
+        404
+      ],
+      "actual": 404,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Create post",
+      "method": "POST",
+      "url": "/posts/",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Read post",
+      "method": "GET",
+      "url": "/posts/1",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Edit own post",
+      "method": "PUT",
+      "url": "/posts/1",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Reject other author edit",
+      "method": "PUT",
+      "url": "/posts/1",
+      "expected": [
+        403
+      ],
+      "actual": 403,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Reject editor approval",
+      "method": "PATCH",
+      "url": "/posts/1/status",
+      "expected": [
+        403
+      ],
+      "actual": 403,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Reject invalid post status",
+      "method": "PATCH",
+      "url": "/posts/1/status",
+      "expected": [
+        400
+      ],
+      "actual": 400,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Reject empty post title",
+      "method": "POST",
+      "url": "/posts/",
+      "expected": [
+        422
+      ],
+      "actual": 422,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Create channel",
+      "method": "POST",
+      "url": "/channels/",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Read channel",
+      "method": "GET",
+      "url": "/channels/1",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Edit channel",
+      "method": "PUT",
+      "url": "/channels/1",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Channel missing assignee",
+      "method": "POST",
+      "url": "/channels/",
+      "expected": [
+        404
+      ],
+      "actual": 404,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Reject editor channel create",
+      "method": "POST",
+      "url": "/channels/",
+      "expected": [
+        403
+      ],
+      "actual": 403,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Reject manager channel delete",
+      "method": "DELETE",
+      "url": "/channels/1",
+      "expected": [
+        403
+      ],
+      "actual": 403,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Reject unapproved post schedule",
+      "method": "POST",
+      "url": "/schedules/",
+      "expected": [
+        400
+      ],
+      "actual": 400,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Approve post",
+      "method": "PATCH",
+      "url": "/posts/1/status",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Create schedule",
+      "method": "POST",
+      "url": "/schedules/",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Read schedule",
+      "method": "GET",
+      "url": "/schedules/1",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Edit pending schedule",
+      "method": "PUT",
+      "url": "/schedules/1",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Reject invalid schedule status",
+      "method": "PATCH",
+      "url": "/schedules/1/status",
+      "expected": [
+        400
+      ],
+      "actual": 400,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Change schedule status",
+      "method": "PATCH",
+      "url": "/schedules/1/status",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Reject edit published schedule",
+      "method": "PUT",
+      "url": "/schedules/1",
+      "expected": [
+        400
+      ],
+      "actual": 400,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Reject delete published schedule",
+      "method": "DELETE",
+      "url": "/schedules/1",
+      "expected": [
+        400
+      ],
+      "actual": 400,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Create pending schedule for delete",
+      "method": "POST",
+      "url": "/schedules/",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Delete pending schedule",
+      "method": "DELETE",
+      "url": "/schedules/2",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Reject missing post schedule",
+      "method": "POST",
+      "url": "/schedules/",
+      "expected": [
+        404
+      ],
+      "actual": 404,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Reject missing channel schedule",
+      "method": "POST",
+      "url": "/schedules/",
+      "expected": [
+        404
+      ],
+      "actual": 404,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Disable channel",
+      "method": "PUT",
+      "url": "/channels/1",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Reject disabled channel schedule",
+      "method": "POST",
+      "url": "/schedules/",
+      "expected": [
+        400
+      ],
+      "actual": 400,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Create task",
+      "method": "POST",
+      "url": "/tasks/",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Read task",
+      "method": "GET",
+      "url": "/tasks/1",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Edit task",
+      "method": "PUT",
+      "url": "/tasks/1",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Assigned editor updates status",
+      "method": "PATCH",
+      "url": "/tasks/1/status",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Other editor forbidden status",
+      "method": "PATCH",
+      "url": "/tasks/1/status",
+      "expected": [
+        403
+      ],
+      "actual": 403,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Reject invalid task status",
+      "method": "PATCH",
+      "url": "/tasks/1/status",
+      "expected": [
+        400
+      ],
+      "actual": 400,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Reject task missing assignee",
+      "method": "POST",
+      "url": "/tasks/",
+      "expected": [
+        404
+      ],
+      "actual": 404,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Reject editor task create",
+      "method": "POST",
+      "url": "/tasks/",
+      "expected": [
+        403
+      ],
+      "actual": 403,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Admin with role ID 10 updates task status",
+      "method": "PATCH",
+      "url": "/tasks/1/status",
+      "expected": [
+        200
+      ],
+      "actual": 403,
+      "passed": false,
+      "detail": "{\"detail\":\"Permission denied\"}"
+    },
+    {
+      "name": "Manager with role ID 20 updates task status",
+      "method": "PATCH",
+      "url": "/tasks/1/status",
+      "expected": [
+        200
+      ],
+      "actual": 403,
+      "passed": false,
+      "detail": "{\"detail\":\"Permission denied\"}"
+    },
+    {
+      "name": "Viewer with role ID 1 cannot update others task",
+      "method": "PATCH",
+      "url": "/tasks/1/status",
+      "expected": [
+        403
+      ],
+      "actual": 200,
+      "passed": false,
+      "detail": "{\"id\":1,\"title\":\"Updated task\",\"description\":null,\"assigned_to\":3,\"assigned_by\":1,\"status\":\"cancelled\",\"due_date\":null,\"created_at\":\"2026-11-18T10:35:48\"}"
+    },
+    {
+      "name": "Upload PNG",
+      "method": "POST",
+      "url": "/media/upload",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Read media",
+      "method": "GET",
+      "url": "/media/1",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Reject unsupported upload",
+      "method": "POST",
+      "url": "/media/upload",
+      "expected": [
+        400
+      ],
+      "actual": 400,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Reject upload missing extension",
+      "method": "POST",
+      "url": "/media/upload",
+      "expected": [
+        400
+      ],
+      "actual": 400,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Reject oversized upload",
+      "method": "POST",
+      "url": "/media/upload",
+      "expected": [
+        400
+      ],
+      "actual": 400,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Reject upload missing file",
+      "method": "POST",
+      "url": "/media/upload",
+      "expected": [
+        422
+      ],
+      "actual": 422,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Attach media",
+      "method": "POST",
+      "url": "/posts/1/media",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "List post media",
+      "method": "GET",
+      "url": "/posts/1/media",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Reject duplicate attachment",
+      "method": "POST",
+      "url": "/posts/1/media",
+      "expected": [
+        400
+      ],
+      "actual": 400,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Reject other author attachment",
+      "method": "POST",
+      "url": "/posts/1/media",
+      "expected": [
+        403
+      ],
+      "actual": 403,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Reject missing media attachment",
+      "method": "POST",
+      "url": "/posts/1/media",
+      "expected": [
+        404
+      ],
+      "actual": 404,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Create interaction",
+      "method": "POST",
+      "url": "/interactions/",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Read interaction",
+      "method": "GET",
+      "url": "/interactions/1",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Reject missing interaction channel",
+      "method": "POST",
+      "url": "/interactions/",
+      "expected": [
+        404
+      ],
+      "actual": 404,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Reject editor interaction create",
+      "method": "POST",
+      "url": "/interactions/",
+      "expected": [
+        403
+      ],
+      "actual": 403,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Delete interaction",
+      "method": "DELETE",
+      "url": "/interactions/1",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Create metric",
+      "method": "POST",
+      "url": "/metrics/",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Read post metrics",
+      "method": "GET",
+      "url": "/metrics/post/1",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Reject negative metric",
+      "method": "POST",
+      "url": "/metrics/",
+      "expected": [
+        422
+      ],
+      "actual": 422,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Reject missing metric post",
+      "method": "POST",
+      "url": "/metrics/",
+      "expected": [
+        404
+      ],
+      "actual": 404,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Reject editor metric create",
+      "method": "POST",
+      "url": "/metrics/",
+      "expected": [
+        403
+      ],
+      "actual": 403,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Read activity log",
+      "method": "GET",
+      "url": "/activity-logs/1",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Reject editor activity logs",
+      "method": "GET",
+      "url": "/activity-logs/",
+      "expected": [
+        403
+      ],
+      "actual": 403,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Anonymous cannot list users",
+      "method": "GET",
+      "url": "/users/",
+      "expected": [
+        401,
+        403
+      ],
+      "actual": 401,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Editor cannot promote self to admin",
+      "method": "PATCH",
+      "url": "/users/4/role",
+      "expected": [
+        403
+      ],
+      "actual": 403,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Anonymous cannot create admin",
+      "method": "POST",
+      "url": "/users/",
+      "expected": [
+        401,
+        403
+      ],
+      "actual": 401,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "User update rejects email over DB limit",
+      "method": "PUT",
+      "url": "/users/4",
+      "expected": [
+        422
+      ],
+      "actual": 200,
+      "passed": false,
+      "detail": "{\"id\":4,\"username\":\"other\",\"email\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.com\",\"role_id\":30,\"role_name\":\"Editor\",\"status\":true}"
+    },
+    {
+      "name": "Post update rejects null title",
+      "method": "PUT",
+      "url": "/posts/1",
+      "expected": [
+        422
+      ],
+      "actual": 500,
+      "passed": false,
+      "detail": "Internal Server Error"
+    },
+    {
+      "name": "Channel update rejects null name",
+      "method": "PUT",
+      "url": "/channels/1",
+      "expected": [
+        422
+      ],
+      "actual": 500,
+      "passed": false,
+      "detail": "Internal Server Error"
+    },
+    {
+      "name": "Task update rejects empty title",
+      "method": "PUT",
+      "url": "/tasks/1",
+      "expected": [
+        422
+      ],
+      "actual": 200,
+      "passed": false,
+      "detail": "{\"id\":1,\"title\":\"\",\"description\":null,\"assigned_to\":3,\"assigned_by\":1,\"status\":\"cancelled\",\"due_date\":null,\"created_at\":\"2026-11-18T10:35:48\"}"
+    },
+    {
+      "name": "Delete task",
+      "method": "DELETE",
+      "url": "/tasks/1",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Upload rejects spoofed image MIME",
+      "method": "POST",
+      "url": "/media/upload",
+      "expected": [
+        400,
+        415,
+        422
+      ],
+      "actual": 200,
+      "passed": false,
+      "detail": "{\"id\":2,\"file_name\":\"payload.html\",\"file_path\":\"C:\\\\Users\\\\nekbi\\\\AppData\\\\Local\\\\Temp\\\\branch-api-4wope93h\\\\uploads\\\\3693d2caa6ff400abf021a3c595a514e.html\",\"file_type\":\"image/png\",\"uploaded_by\":1,\"created_at\":\"2026-11-18T10:35:49\"}"
+    },
+    {
+      "name": "Delete attached media returns controlled conflict",
+      "method": "DELETE",
+      "url": "/media/1",
+      "expected": [
+        400,
+        409
+      ],
+      "actual": 500,
+      "passed": false,
+      "detail": "Internal Server Error"
+    },
+    {
+      "name": "Detach media",
+      "method": "DELETE",
+      "url": "/posts/1/media/1",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Delete media",
+      "method": "DELETE",
+      "url": "/media/1",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Delete referenced post returns controlled conflict",
+      "method": "DELETE",
+      "url": "/posts/1",
+      "expected": [
+        400,
+        409
+      ],
+      "actual": 500,
+      "passed": false,
+      "detail": "Internal Server Error"
+    },
+    {
+      "name": "Delete referenced channel returns controlled conflict",
+      "method": "DELETE",
+      "url": "/channels/1",
+      "expected": [
+        400,
+        409
+      ],
+      "actual": 500,
+      "passed": false,
+      "detail": "Internal Server Error"
+    },
+    {
+      "name": "Create unreferenced post",
+      "method": "POST",
+      "url": "/posts/",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Delete unreferenced post",
+      "method": "DELETE",
+      "url": "/posts/2",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Create unreferenced channel",
+      "method": "POST",
+      "url": "/channels/",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Delete unreferenced channel",
+      "method": "DELETE",
+      "url": "/channels/2",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Localhost CORS preflight",
+      "method": "OPTIONS",
+      "url": "/users/",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "passed": true,
+      "detail": ""
+    }
+  ]
+}
