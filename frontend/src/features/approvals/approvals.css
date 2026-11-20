@@ -1,0 +1,68 @@
+/* Trang Duyệt nội dung (T0427C8). Dùng chung khung sidebar/topbar của styles/style.css;
+   mọi luật bên dưới nằm dưới .approvals-app hoặc có tên riêng nên không ảnh hưởng trang khác. */
+.approvals-app { --sidebar-width: clamp(240px, 12.5vw, 12rem); min-height: 100vh; background: var(--color-canvas); font-family: "Manrope", system-ui, sans-serif; }
+.approvals-app .workspace { min-height: 100vh; height: auto; border-radius: 0; overflow: visible; }
+.approvals-app .sidebar { position: fixed; inset: 0 auto 0 0; z-index: 20; width: var(--sidebar-width); height: 100vh; padding: 1rem .7rem .7rem; overflow-y: auto; }
+.approvals-app .brand { gap: 12px; margin: 0 .45rem 1.65rem; font-size: 20px; }
+.approvals-app .brand-mark { width: 48px; height: 48px; flex: 0 0 48px; border-radius: 14px; font-size: 20px; letter-spacing: -2px; }
+.approvals-app .nav-label { margin: 0 .8rem .65rem; font-size: 9px; }
+.approvals-app .navigation { gap: .35rem; }
+.approvals-app .nav-item { gap: .65rem; min-height: 2.65rem; padding: .55rem .75rem; border-radius: .7rem; font-family: inherit; font-size: 13px; }
+.approvals-app .account-button { min-height: 2.4rem; padding: .3rem .7rem; font-family: inherit; font-size: 12px; }
+.approvals-app .avatar-account { width: 1.75rem; height: 1.75rem; }
+.approvals-app .workspace-main { min-width: 0; min-height: 100vh; flex: 1; margin-left: var(--sidebar-width); }
+.approvals-app .topbar { position: static; min-height: 3.8rem; padding: .6rem 1.5rem; font-family: inherit; }
+.approvals-app .breadcrumb { font-size: 12px; }
+.approvals-app .page-content { padding: 1.25rem 1.5rem 1.5rem; }
+.approvals-app .page-heading h1 { font-size: clamp(24px, 1.9vw, 27px); }
+.approvals-app .page-heading .page-description { margin-top: .4rem; font-size: 13px; }
+
+.role-badge { padding: .3rem .75rem; border-radius: 999px; background: var(--color-lime-soft); font-size: 12px; font-weight: 700; }
+
+.notice { margin: 0 0 1rem; padding: .7rem 1rem; border-radius: .7rem; font-size: 13px; line-height: 1.5; }
+.notice-error { background: #fdecea; color: #8a1f17; border: 1px solid #f5c6c1; }
+
+.panel { max-width: 26rem; padding: 1.25rem; border: 1px solid var(--color-border); border-radius: var(--radius); background: var(--color-surface); }
+.panel-title { margin: 0 0 1rem; font-size: 16px; }
+.approvals-app label { display: block; margin: .8rem 0 .3rem; font-size: 12px; font-weight: 700; }
+.approvals-app input[type="text"], .approvals-app input[type="password"], .approvals-app textarea {
+  width: 100%; padding: .6rem .75rem; border: 1px solid var(--color-border); border-radius: .6rem; font: inherit; font-size: 13px; background: #fff;
+}
+.approvals-app textarea { resize: vertical; }
+.panel .button { margin-top: 1rem; }
+.required { color: #8a1f17; font-weight: 600; }
+
+.tabs { display: flex; gap: .5rem; margin-bottom: 1rem; border-bottom: 1px solid var(--color-border); }
+.tab { padding: .6rem 1rem; background: none; border-bottom: 2px solid transparent; font-size: 13px; font-weight: 700; color: var(--color-muted); }
+.tab.is-active { color: var(--color-ink); border-bottom-color: var(--color-ink); }
+.count { display: inline-block; min-width: 1.4rem; margin-left: .3rem; padding: 0 .4rem; border-radius: 999px; background: var(--color-lime); color: var(--color-sidebar); font-size: 11px; text-align: center; }
+
+.post-list { display: grid; gap: .75rem; margin: 0; padding: 0; list-style: none; }
+.post-card { padding: 1rem 1.1rem; border: 1px solid var(--color-border); border-radius: var(--radius); background: var(--color-surface); }
+.post-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+.post-title { margin: 0; font-size: 15px; font-weight: 700; }
+.post-meta { margin: .3rem 0 0; font-size: 12px; color: var(--color-muted); }
+.post-excerpt { margin: .6rem 0 0; font-size: 13px; line-height: 1.5; color: var(--color-ink); overflow-wrap: anywhere; }
+.reject-note { margin: .7rem 0 0; padding: .6rem .8rem; border-radius: .6rem; background: #fdecea; color: #8a1f17; font-size: 13px; line-height: 1.5; overflow-wrap: anywhere; }
+.post-actions { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .8rem; }
+
+.status { flex-shrink: 0; padding: .25rem .65rem; border-radius: 999px; font-size: 11px; font-weight: 700; background: #eef0eb; color: #4a554f; }
+.status-pending { background: #fff3cd; color: #7a5b00; }
+.status-approved { background: var(--color-lime-soft); color: #31500a; }
+.status-rejected { background: #fdecea; color: #8a1f17; }
+
+.empty { margin: 2rem 0; text-align: center; color: var(--color-muted); font-size: 13px; }
+
+.reject-dialog { width: min(32rem, calc(100vw - 2rem)); padding: 1.25rem; border: 0; border-radius: var(--radius); }
+.reject-dialog::backdrop { background: rgba(16, 23, 19, .55); }
+.reject-dialog h2 { margin: 0; font-size: 17px; }
+.dialog-sub { margin: .3rem 0 0; font-size: 13px; color: var(--color-muted); overflow-wrap: anywhere; }
+.dialog-footer { display: flex; justify-content: flex-end; gap: .5rem; margin-top: 1rem; }
+
+@media (max-width: 700px) {
+  .approvals-app .sidebar { display: none; }
+  .approvals-app .workspace-main { margin-left: 0; }
+  .approvals-app .topbar, .approvals-app .page-content { padding-inline: 1rem; }
+  .post-head { flex-direction: column; gap: .4rem; }
+}
+.approvals-app .tabs { margin-top: 1.25rem; }
