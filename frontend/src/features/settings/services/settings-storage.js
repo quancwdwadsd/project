@@ -1,12 +1,8 @@
 (() => {
   'use strict';
 
-  const SETTINGS_KEY = 'mediahub.settings.v1';
-  const HISTORY_KEY = 'mediahub.settings.history.v1';
-  const HISTORY_LIMIT = 100;
-
-  // Tạm thời lấy người dùng cố định. Thay bằng phiên đăng nhập thật khi UC01 có backend.
-  const currentUser = Object.freeze({ name: 'Minh Quân', role: 'admin' });
+  // File này chỉ chứa danh sách mục cấu hình, luật kiểm tra và định dạng hiển thị.
+  // Dữ liệu được lưu ở database qua API (settings-api.js), KHÔNG lưu trong trình duyệt.
 
   const timezones = Object.freeze({
     'Asia/Ho_Chi_Minh': 'Việt Nam (UTC+7)',
@@ -102,60 +98,6 @@
     return out;
   }
 
-  function canConfigure(user) {
-    return Boolean(user) && user.role === 'admin';
-  }
-
-  function read(key) {
-    const stored = localStorage.getItem(key);
-    return stored === null ? null : JSON.parse(stored);
-  }
-
-  function write(key, value) {
-    try {
-      localStorage.setItem(key, JSON.stringify(value));
-      return true;
-    } catch {
-      return false;
-    }
-  }
-
-  function load() {
-    try {
-      const stored = read(SETTINGS_KEY);
-      if (stored === null) return { config: { ...defaults }, warning: null };
-      const config = { ...defaults, ...stored };
-      if (stored && typeof stored === 'object' && !Array.isArray(stored) && Object.keys(validate(config)).length === 0) return { config, warning: null };
-      return { config: { ...defaults }, warning: 'Cấu hình đã lưu không hợp lệ. Đang dùng giá trị mặc định.' };
-    } catch {
-      return { config: { ...defaults }, warning: 'Không đọc được cấu hình đã lưu. Đang dùng giá trị mặc định.' };
-    }
-  }
-
-  function save(config) {
-    return write(SETTINGS_KEY, config);
-  }
-
-  const isValidEntry = (entry) => entry && typeof entry.id === 'string' && typeof entry.by === 'string'
-    && typeof entry.at === 'string' && !Number.isNaN(new Date(entry.at).getTime())
-    && Array.isArray(entry.changes)
-    && entry.changes.every((item) => item && ['label', 'from', 'to'].every((field) => typeof item[field] === 'string'));
-
-  function loadHistory() {
-    try {
-      const stored = read(HISTORY_KEY);
-      return Array.isArray(stored) ? stored.filter(isValidEntry).slice(0, HISTORY_LIMIT) : [];
-    } catch {
-      return [];
-    }
-  }
-
-  // Ghi thêm một lần thay đổi: ai đổi, lúc nào (UTC), đổi gì. Mới nhất ở đầu danh sách.
-  function appendHistory(history, entry) {
-    const next = [entry, ...history].slice(0, HISTORY_LIMIT);
-    return { history: next, saved: write(HISTORY_KEY, next) };
-  }
-
   function formatDateTime(value, timeZone) {
     const date = value instanceof Date ? value : new Date(value);
     if (Number.isNaN(date.getTime())) return '—';
@@ -179,8 +121,7 @@
   }
 
   window.MediaHubSettings = Object.freeze({
-    currentUser, fields, groups, defaults, timezones,
-    validate, diff, impacts, canConfigure, formatValue,
-    load, save, loadHistory, appendHistory, formatDateTime, offsetLabel,
+    fields, groups, defaults, timezones,
+    validate, diff, impacts, formatValue, formatDateTime, offsetLabel,
   });
 })();

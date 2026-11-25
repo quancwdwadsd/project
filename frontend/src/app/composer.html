@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#151e1a">
+  <title>Composer · MediaHub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://kit.fontawesome.com/1fac2a0eff.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="../styles/style.css">
+  <link rel="stylesheet" href="../features/composer/composer.css">
+  <script src="../features/composer/services/composer-storage.js" defer></script>
+  <script src="../features/composer/composer.js" defer></script>
+</head>
+<body class="composer-app">
+  <svg class="icon-definitions" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="icon-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></symbol>
+    <symbol id="icon-channel" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M7 8h10M7 12h6M7 16h8"/></symbol>
+    <symbol id="icon-content" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 7h6M9 11h6M9 15h4"/></symbol>
+    <symbol id="icon-calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18"/></symbol>
+    <symbol id="icon-task" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="m8 12 3 3 5-6"/></symbol>
+    <symbol id="icon-chart" viewBox="0 0 24 24"><path d="M4 20v-7M10 20V8M16 20V4M22 20V10"/></symbol>
+    <symbol id="icon-users" viewBox="0 0 24 24"><circle cx="9" cy="7" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3M16 4a3 3 0 0 1 0 6M21 21v-3a6 6 0 0 0-4-5"/></symbol>
+    <symbol id="icon-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></symbol>
+    <symbol id="icon-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/></symbol>
+    <symbol id="icon-bell" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></symbol>
+    <symbol id="icon-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="icon-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/></symbol>
+    <symbol id="icon-chevron" viewBox="0 0 24 24"><path d="m8 10 4 4 4-4"/></symbol>
+    <symbol id="icon-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+    <symbol id="icon-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+    <symbol id="icon-arrow" viewBox="0 0 24 24"><path d="M7 17 17 7M7 7h10v10"/></symbol>
+    <symbol id="icon-image" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></symbol>
+    <symbol id="icon-video" viewBox="0 0 24 24"><rect x="3" y="5" width="13" height="14" rx="2"/><path d="m16 10 5-3v10l-5-3z"/></symbol>
+    <symbol id="icon-heart" viewBox="0 0 24 24"><path d="M20.8 8.6c0 5.5-8.8 11-8.8 11s-8.8-5.5-8.8-11A4.6 4.6 0 0 1 12 6.3a4.6 4.6 0 0 1 8.8 2.3Z"/></symbol>
+    <symbol id="icon-comment" viewBox="0 0 24 24"><path d="M20 11.5a7.5 7.5 0 0 1-8 7.5 8.5 8.5 0 0 1-3.5-.8L4 20l1.2-3.6A7.2 7.2 0 0 1 4 12c0-4.1 3.6-7.5 8-7.5s8 3.1 8 7Z"/></symbol>
+    <symbol id="icon-send" viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></symbol>
+    <symbol id="icon-bookmark" viewBox="0 0 24 24"><path d="M6 4h12v17l-6-4-6 4z"/></symbol>
+    <symbol id="icon-share" viewBox="0 0 24 24"><path d="M7 17 17 7M7 7h10v10"/></symbol>
+  </svg>
+
+  <div class="workspace">
+    <button class="sidebar-overlay" id="sidebar-overlay" aria-label="Đóng thanh điều hướng" hidden></button>
+    <aside class="sidebar" id="sidebar" aria-label="Không gian làm việc">
+      <a class="brand" href="./index.html" aria-label="MediaHub — Studio"><span class="brand-mark">m.</span><span>mediahub</span></a>
+      <p class="nav-label">Workspace</p>
+      <nav class="navigation" aria-label="Điều hướng chính">
+        <a class="nav-item" href="./index.html"><svg class="icon"><use href="#icon-grid"/></svg><span>Tổng quan</span></a>
+        <button class="nav-item" type="button" data-section="Kênh truyền thông"><svg class="icon"><use href="#icon-channel"/></svg><span>Kênh truyền thông</span></button>
+        <a class="nav-item is-active" href="./composer.html" aria-current="page"><svg class="icon"><use href="#icon-content"/></svg><span>Thư viện nội dung</span></a>
+        <button class="nav-item" type="button" data-section="Lịch xuất bản"><svg class="icon"><use href="#icon-calendar"/></svg><span>Lịch xuất bản</span></button>
+        <button class="nav-item" type="button" data-section="Công việc"><svg class="icon"><use href="#icon-task"/></svg><span>Công việc</span></button>
+        <button class="nav-item" type="button" data-section="Báo cáo phân tích"><svg class="icon"><use href="#icon-chart"/></svg><span>Báo cáo phân tích</span></button>
+        <a class="nav-item" href="./index.html"><svg class="icon"><use href="#icon-users"/></svg><span>Thành viên</span></a>
+        <a class="nav-item" href="./settings.html"><svg class="icon"><use href="#icon-settings"/></svg><span>Cấu hình hệ thống</span></a>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="upgrade-card"><p class="upgrade-title"><span aria-hidden="true">✦</span> Workspace Pro</p><p>Tập trung toàn bộ nội dung<br>trong một không gian.</p><button type="button" id="manage-plan">Quản lý gói <svg class="icon"><use href="#icon-arrow"/></svg></button></div>
+        <button class="account-button" type="button" id="account-button"><span class="avatar avatar-account">Q</span><span>Minh Quân</span><svg class="icon"><use href="#icon-chevron"/></svg></button>
+      </div>
+    </aside>
+
+    <div class="workspace-main">
+      <header class="topbar">
+        <button type="button" class="icon-button mobile-menu" id="mobile-menu" aria-label="Mở thanh điều hướng" aria-expanded="false" aria-controls="sidebar"><svg class="icon"><use href="#icon-menu"/></svg></button>
+        <div class="breadcrumb"><span>MediaHub</span><span class="breadcrumb-divider">/</span><span>Studio</span></div>
+        <div class="topbar-actions">
+          <label class="search-box" for="draft-search"><svg class="icon"><use href="#icon-search"/></svg><input id="draft-search" type="search" placeholder="Tìm bản nháp..." autocomplete="off" aria-label="Tìm bản nháp"></label>
+          <button type="button" class="icon-button notification-button" id="notifications-button" aria-label="Thông báo"><svg class="icon"><use href="#icon-bell"/></svg></button>
+          <button type="button" class="profile-button" id="profile-button"><span class="avatar profile-avatar">MQ</span><span>Tổng quan</span></button>
+        </div>
+      </header>
+
+      <main class="page-content composer-page" id="main-content">
+        <section class="page-heading composer-heading" aria-labelledby="page-title">
+          <div><p class="eyebrow">Studio</p><h1 id="page-title">Tạo nội dung đáng nhớ.</h1><p class="page-description">Viết một lần, chuẩn bị xuất bản ở nhiều kênh.</p></div>
+          <div class="heading-actions"><button type="button" class="button button-secondary new-post-button" id="new-post-button" hidden><svg class="icon"><use href="#icon-plus"/></svg>Tạo bài mới</button><button type="button" class="button button-secondary drafts-open" id="open-drafts"><svg class="icon"><use href="#icon-content"/></svg><span>Bản nháp</span><span class="draft-count" id="draft-count">00</span></button></div>
+        </section>
+
+        <div class="composer-layout">
+          <section class="composer-card editor-card" aria-labelledby="editor-heading">
+            <div class="card-heading"><div><p class="eyebrow">Nội dung bài viết</p><h2 class="visually-hidden" id="editor-heading">Soạn bài viết</h2></div><span class="save-state" id="save-state" role="status">Bản nháp mới</span></div>
+            <div class="editor-scroll">
+              <label class="field-label" for="post-title">Tiêu đề bài viết</label>
+              <input class="composer-input title-input" id="post-title" name="title" maxlength="120" placeholder="Một câu mở đầu thật thu hút..." autocomplete="off">
+
+              <div class="content-label-row"><label class="field-label" for="post-content">Nội dung</label><span class="character-count" id="character-count">0 / 2.200</span></div>
+              <div class="rich-editor">
+                <div class="rich-toolbar" role="toolbar" aria-label="Định dạng nội dung">
+                  <button type="button" data-command="bold" aria-label="In đậm" title="In đậm"><strong>B</strong></button>
+                  <button type="button" data-command="italic" aria-label="In nghiêng" title="In nghiêng"><em>I</em></button>
+                  <button type="button" data-command="underline" aria-label="Gạch chân" title="Gạch chân"><u>U</u></button>
+                  <span class="toolbar-divider" aria-hidden="true"></span>
+                  <button type="button" data-command="insertUnorderedList" aria-label="Danh sách chấm" title="Danh sách chấm">☷</button>
+                  <button type="button" data-command="insertOrderedList" aria-label="Danh sách số" title="Danh sách số">≡</button>
+                  <button type="button" id="insert-emoji" aria-label="Chèn biểu tượng" title="Chèn biểu tượng">＋</button>
+                </div>
+                <div class="composer-editor" id="post-content" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Nội dung bài viết" data-placeholder="Bắt đầu kể câu chuyện của bạn..."></div>
+              </div>
+
+              <div class="form-field campaign-field">
+                <label class="field-label" for="campaign-tag">Thẻ chiến dịch <span class="optional-label">Không bắt buộc</span></label>
+                <div class="tag-input-wrap campaign-tag-input-wrap"><span class="campaign-tag-prefix" aria-hidden="true">#</span><div class="campaign-tags" id="campaign-tags" aria-live="polite"></div><input id="campaign-tag" name="campaignTag" maxlength="40" placeholder="Thêm hashtag rồi nhấn Enter" list="campaign-suggestions" autocomplete="off"></div>
+                <p class="campaign-tag-help">Nhấn Enter hoặc dấu phẩy để thêm nhiều hashtag.</p>
+                <datalist id="campaign-suggestions"><option value="brand-awareness"><option value="product-launch"><option value="mediahub-studio"></datalist>
+              </div>
+
+              <div class="form-field media-field">
+                <div class="media-heading"><div><span class="field-label">Ảnh và video</span><span class="field-hint">Tối đa 100 MB mỗi tệp · JPG, PNG, WEBP, MP4, WEBM, MOV</span></div><span class="media-count" id="media-count">0 tệp</span></div>
+                <div class="media-actions"><button type="button" class="button button-secondary" id="open-media-library"><svg class="icon"><use href="#icon-image"/></svg>Thêm ảnh/video</button><input type="file" id="media-input" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm,video/quicktime" multiple hidden></div>
+                <div class="attached-media" id="attached-media" aria-live="polite"></div>
+                <p class="form-message" id="media-error" role="alert" hidden></p>
+              </div>
+
+              <fieldset class="channel-field">
+                <legend class="field-label">Đăng lên</legend>
+                <div class="channel-options">
+                  <label class="channel-chip" data-channel="facebook"><input type="radio" name="channel" value="facebook"><i class="fa-brands fa-facebook channel-mark facebook-mark" aria-hidden="true"></i><span>Facebook</span><span class="channel-check" aria-hidden="true">✓</span></label>
+                  <label class="channel-chip is-selected" data-channel="instagram"><input type="radio" name="channel" value="instagram" checked><i class="fa-brands fa-instagram channel-mark instagram-mark" aria-hidden="true"></i><span>Instagram</span><span class="channel-check" aria-hidden="true">✓</span></label>
+                  <label class="channel-chip" data-channel="tiktok"><input type="radio" name="channel" value="tiktok"><i class="fa-brands fa-tiktok channel-mark tiktok-mark" aria-hidden="true"></i><span>TikTok</span><span class="channel-check" aria-hidden="true">✓</span></label>
+                </div>
+              </fieldset>
+            </div>
+            <div class="editor-actions"><button type="button" class="button button-secondary" id="save-draft-bottom">Lưu nháp</button><button type="button" class="button button-primary publish-button" id="schedule-post">Lên lịch / xuất bản <svg class="icon"><use href="#icon-arrow"/></svg></button></div>
+          </section>
+
+          <aside class="composer-card preview-panel" aria-labelledby="preview-heading">
+            <div class="preview-heading"><div><p class="eyebrow">Xem trước</p><h2 class="visually-hidden" id="preview-heading">Bản xem trước theo mạng xã hội</h2></div><span class="preview-platform-badge"><i class="fa-brands fa-instagram" id="preview-platform-icon" aria-hidden="true"></i><span id="preview-platform-label">Instagram</span></span></div>
+            <div class="preview-stage" id="preview-stage" data-platform="instagram"><div class="platform-preview" id="social-preview" aria-live="polite"></div></div>
+            <p class="preview-note">Bản xem trước mô phỏng cách hiển thị của từng kênh; nền tảng có thể tự điều chỉnh khi xuất bản.</p>
+            <div class="preview-status"><span class="status-dot" aria-hidden="true"></span><span id="preview-status">Chưa xuất bản</span></div>
+          </aside>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <dialog class="composer-dialog drafts-dialog" id="drafts-dialog" aria-labelledby="drafts-title">
+    <div class="dialog-heading"><div><p class="eyebrow">Studio</p><h2 id="drafts-title">Bản nháp đã lưu</h2></div><button class="icon-button" type="button" data-close-dialog aria-label="Đóng"><svg class="icon"><use href="#icon-close"/></svg></button></div>
+    <p class="dialog-description">Mở lại để tiếp tục chỉnh sửa hoặc xóa bản nháp không còn dùng.</p>
+    <label class="draft-search-field" for="draft-library-search"><svg class="icon"><use href="#icon-search"/></svg><input id="draft-library-search" type="search" placeholder="Tìm theo tiêu đề, nội dung hoặc thẻ..." autocomplete="off"></label>
+    <div class="draft-list" id="draft-list"></div>
+    <p class="draft-empty" id="draft-empty" hidden>Chưa có bản nháp phù hợp.</p>
+    <div class="dialog-footer"><button type="button" class="button button-primary" data-close-dialog>Đóng</button></div>
+  </dialog>
+
+  <dialog class="composer-dialog media-dialog" id="media-dialog" aria-labelledby="media-title">
+    <div class="dialog-heading"><div><p class="eyebrow">Media library</p><h2 id="media-title">Thư viện media</h2></div><button class="icon-button" type="button" data-close-dialog aria-label="Đóng"><svg class="icon"><use href="#icon-close"/></svg></button></div>
+    <p class="dialog-description">Chọn các tệp đã tải lên hoặc thêm ảnh/video mới vào thư viện.</p>
+    <div class="library-toolbar"><span id="library-count">0 tệp</span><button type="button" class="button button-secondary" id="library-upload"><svg class="icon"><use href="#icon-plus"/></svg>Tải tệp lên</button></div>
+    <div class="library-grid" id="library-grid"></div>
+    <p class="draft-empty" id="library-empty" hidden>Thư viện chưa có tệp. Tải ảnh hoặc video đầu tiên của bạn.</p>
+    <p class="form-message" id="library-error" role="alert" hidden></p>
+    <div class="dialog-footer"><button type="button" class="button button-secondary" data-close-dialog>Hủy</button><button type="button" class="button button-primary" id="attach-media">Thêm vào bài viết</button></div>
+  </dialog>
+
+  <dialog class="composer-dialog confirm-dialog" id="delete-dialog" aria-labelledby="delete-title">
+    <div class="dialog-heading"><div><p class="eyebrow">Bản nháp</p><h2 id="delete-title">Xóa bản nháp này?</h2></div><button class="icon-button" type="button" data-close-dialog aria-label="Đóng"><svg class="icon"><use href="#icon-close"/></svg></button></div>
+    <p class="dialog-description">Bản nháp sẽ bị xóa khỏi trình duyệt và không thể khôi phục.</p>
+    <div class="dialog-footer"><button type="button" class="button button-secondary" data-close-dialog>Giữ lại</button><button type="button" class="button button-danger" id="confirm-delete-draft">Xóa bản nháp</button></div>
+  </dialog>
+
+  <dialog class="composer-dialog publish-dialog" id="publish-dialog" aria-labelledby="publish-title">
+    <div class="dialog-heading"><div><p class="eyebrow">Bản demo</p><h2 id="publish-title">Chưa kết nối kênh xuất bản</h2></div><button class="icon-button" type="button" data-close-dialog aria-label="Đóng"><svg class="icon"><use href="#icon-close"/></svg></button></div>
+    <p class="dialog-description">Bản xem trước giúp bạn kiểm tra bố cục. Để đăng hoặc lên lịch thật, cần kết nối API của từng mạng xã hội. Bạn có thể lưu nội dung này thành bản nháp trong lúc chờ.</p>
+    <div class="dialog-footer"><button type="button" class="button button-secondary" data-close-dialog>Tiếp tục chỉnh sửa</button><button type="button" class="button button-primary" id="save-from-publish">Lưu bản nháp</button></div>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>
