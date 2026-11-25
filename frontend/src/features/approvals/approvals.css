@@ -1,0 +1,369 @@
+.approvals-app .approval-title {
+  margin: 0;
+  color: var(--color-ink);
+  font-size: 1.05rem;
+  letter-spacing: -.02em;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.approvals-app .approval-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding: .85rem 1.1rem;
+  border: 1px solid #f0cdc7;
+  border-radius: .85rem;
+  background: #fff0ed;
+  color: #a33d35;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.approvals-app .approval-banner p {
+  margin: 0;
+}
+
+.approvals-app .approval-login {
+  width: min(28rem, 100%);
+  min-height: 0;
+  padding: 1.25rem 1.5rem 1.25rem;
+}
+
+.approvals-app .approval-input {
+  min-height: 2.9rem;
+  margin-bottom: 1rem;
+  padding: .7rem 1rem;
+  font-size: 13px;
+}
+
+.approvals-app .approval-textarea {
+  min-height: 6.5rem;
+  margin-bottom: 0;
+  line-height: 1.55;
+  resize: vertical;
+}
+
+.approvals-app .approval-tabs {
+  display: flex;
+  gap: .5rem;
+  margin-bottom: 1rem;
+  padding-bottom: .15rem;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.approvals-app .approval-tab {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: .5rem;
+  min-height: 2.3rem;
+  padding: 0 .95rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: #5d695f;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 650;
+  transition: background .15s, border-color .15s, color .15s;
+}
+
+.approvals-app .approval-tab:hover {
+  border-color: #d7e1ce;
+  background: #fbfcf9;
+}
+
+.approvals-app .approval-tab.is-active {
+  border-color: var(--color-sidebar);
+  background: var(--color-sidebar);
+  color: #fff;
+}
+
+.approvals-app .approval-tab-count {
+  min-width: 1.35rem;
+  padding: .05rem .4rem;
+  border-radius: 999px;
+  background: #eef2e8;
+  color: #4d5a50;
+  font-size: 11px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.approvals-app .approval-tab.is-active .approval-tab-count {
+  background: var(--color-lime);
+  color: var(--color-sidebar);
+}
+
+.approvals-app .approval-layout {
+  grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr);
+  align-items: start;
+}
+
+.approvals-app .approval-list-card,
+.approvals-app .approval-detail-card {
+  display: flex;
+  min-height: 24rem;
+  flex-direction: column;
+  padding: 1.25rem 1.5rem 1.5rem;
+}
+
+.approvals-app .approval-list {
+  display: flex;
+  max-height: min(68dvh, 40rem);
+  flex-direction: column;
+  gap: .5rem;
+  margin: 0;
+  padding: 0 .15rem 0 0;
+  overflow-y: auto;
+  list-style: none;
+  scrollbar-color: #d9dfd7 transparent;
+  scrollbar-width: thin;
+}
+
+.approvals-app .approval-row {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  padding: .75rem .85rem;
+}
+
+.approvals-app .approval-row.is-selected {
+  border-color: #b9d98a;
+  background: #f6fbe9;
+}
+
+.approvals-app .approval-row .draft-open {
+  gap: .3rem;
+  cursor: pointer;
+}
+
+.approvals-app .approval-row .draft-open strong {
+  font-size: 13px;
+}
+
+.approvals-app .approval-row .draft-open span {
+  font-size: 12px;
+}
+
+.approvals-app .approval-row .draft-open small {
+  font-size: 11px;
+}
+
+.approvals-app .approval-status {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  padding: .22rem .65rem;
+  border-radius: 999px;
+  background: #eef0eb;
+  color: #56625a;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.approvals-app .approval-status[data-status="pending"] {
+  background: #fff3d6;
+  color: #8a5a00;
+}
+
+.approvals-app .approval-status[data-status="approved"] {
+  background: var(--color-lime-soft);
+  color: #3d6b0a;
+}
+
+.approvals-app .approval-status[data-status="rejected"] {
+  background: #fdecea;
+  color: #a33d35;
+}
+
+.approvals-app .approval-status[data-status="published"] {
+  background: #e3eefc;
+  color: #245a9c;
+}
+
+.approvals-app .approval-detail-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.approvals-app .approval-meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .6rem 1rem;
+  margin: 0 0 1.1rem;
+  padding: .85rem 1rem;
+  border-radius: .85rem;
+  background: #f6f7f3;
+}
+
+.approvals-app .approval-meta-row {
+  min-width: 0;
+}
+
+.approvals-app .approval-meta dt {
+  color: #7e8a83;
+  font-size: 11px;
+}
+
+.approvals-app .approval-meta dd {
+  margin: .15rem 0 0;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.approvals-app .approval-content {
+  max-height: 16rem;
+  margin-bottom: 1.1rem;
+  padding: .9rem 1rem;
+  overflow: auto;
+  border: 1px solid #edf0ea;
+  border-radius: .85rem;
+  font-size: 13px;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+
+.approvals-app .approval-content p {
+  margin: 0 0 .6rem;
+}
+
+.approvals-app .approval-content ul,
+.approvals-app .approval-content ol {
+  margin: 0 0 .6rem;
+  padding-left: 1.2rem;
+}
+
+.approvals-app .approval-muted {
+  margin: 0;
+  color: #828e85;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.approvals-app .approval-reason {
+  margin-bottom: 1.1rem;
+  padding: .8rem 1rem;
+  border: 1px solid #f0cdc7;
+  border-radius: .85rem;
+  background: #fff0ed;
+  color: #a33d35;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.approvals-app .approval-reason p {
+  margin: .25rem 0 0;
+  overflow-wrap: anywhere;
+}
+
+.approvals-app .approval-history {
+  display: flex;
+  flex-direction: column;
+  gap: .65rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.approvals-app .approval-history-item {
+  position: relative;
+  padding-left: 1.2rem;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.approvals-app .approval-history-item::before {
+  position: absolute;
+  top: .4rem;
+  left: 0;
+  width: .55rem;
+  height: .55rem;
+  border-radius: 50%;
+  background: #c8d2c0;
+  content: "";
+}
+
+.approvals-app .approval-history-item[data-event="approve"]::before {
+  background: #70a51d;
+}
+
+.approvals-app .approval-history-item[data-event="reject"]::before {
+  background: #c4554b;
+}
+
+.approvals-app .approval-history-item[data-event="submit"]::before {
+  background: #d99a1b;
+}
+
+.approvals-app .approval-history-item strong {
+  display: block;
+  font-size: 12px;
+}
+
+.approvals-app .approval-history-item span {
+  color: #7e8a83;
+}
+
+.approvals-app .approval-history-item p {
+  margin: .2rem 0 0;
+  color: #a33d35;
+  overflow-wrap: anywhere;
+}
+
+.approvals-app .approval-actions {
+  align-items: center;
+  margin-top: 1.25rem;
+}
+
+.approvals-app .reject-dialog {
+  width: min(34rem, calc(100% - 2rem));
+}
+
+.approvals-app .reject-dialog .dialog-heading h2 {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 980px) {
+  .approvals-app .approval-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .approvals-app .approval-list-card,
+  .approvals-app .approval-detail-card {
+    min-height: 0;
+  }
+
+  .approvals-app .approval-list {
+    max-height: 22rem;
+  }
+}
+
+@media (max-width: 700px) {
+  .approvals-app .approval-meta {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .approvals-app .approval-detail-head {
+    flex-direction: column;
+    gap: .5rem;
+  }
+
+  .approvals-app .approval-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .approvals-app .approval-list-card,
+  .approvals-app .approval-detail-card {
+    padding: 1rem 1.1rem 1.25rem;
+  }
+}
