@@ -15,6 +15,8 @@ from routers.metrics import router as metrics_router
 from routers.post_media import router as post_media_router
 from routers.activity_logs import router as activity_logs_router
 from routers.settings import router as settings_router
+from routers.approvals import router as approvals_router
+
 
 app = FastAPI(
     title="Social Media Management API",
@@ -72,6 +74,7 @@ app.include_router(metrics_router)
 app.include_router(post_media_router)
 app.include_router(activity_logs_router)
 app.include_router(settings_router)
+app.include_router(approvals_router)
 
 @app.get("/")
 def home():
