@@ -1,10 +1,7 @@
 (() => {
   'use strict';
 
-  const store = window.MediaHubAuth;
-  const loaded = store.load();
-  let accounts = loaded.accounts;
-
+  const auth = window.MediaHubAuth;
   let toastTimer;
 
   function notify(message) {
@@ -16,14 +13,6 @@
     toastTimer = setTimeout(() => { toast.hidden = true; }, 4500);
   }
 
-  function persist(message) {
-    const saved = store.save(accounts);
-    if (!saved) notify(`${message} Trình duyệt không cho lưu; thay đổi chỉ giữ trong lần mở này.`);
-    return saved;
-  }
-
-  // Hien popup o giua man hinh (dung <dialog> nhu users.js dang dung cho
-  // hop thoai), roi tu chuyen trang sau 1 khoang thoi gian ngan.
   function showSuccessDialog(title, message, redirectUrl, delayMs = 1200) {
     const dialog = document.getElementById('success-dialog');
     if (!dialog) { window.location.href = redirectUrl; return; }
@@ -44,7 +33,6 @@
     });
   }
 
-  // Thanh progress "chay" mach giua trang dang ky <-> dang nhap.
   function animateProgress() {
     const fill = document.getElementById('progress-fill');
     if (!fill) return;
@@ -88,7 +76,7 @@
       if (input) input.classList.add('has-error');
     }
 
-    form.addEventListener('submit', (event) => {
+    form.addEventListener('submit', async (event) => {
       event.preventDefault();
       clearErrors();
 
@@ -98,30 +86,21 @@
 
       let hasError = false;
       if (fullName.length < 2) { showFieldError('full-name', 'Vui lòng nhập họ tên đầy đủ.'); hasError = true; }
-      if (!email.includes('@')) { showFieldError('email', 'Email không hợp lệ.'); hasError = true; }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showFieldError('email', 'Email không hợp lệ.'); hasError = true; }
       if (pass.length < 8) { showFieldError('password', 'Mật khẩu cần ít nhất 8 ký tự.'); hasError = true; }
       if (hasError) return;
 
-      const trungEmail = accounts.some((acc) => acc.email.toLowerCase() === email.toLowerCase());
-      if (trungEmail) {
-        showFieldError('email', 'Email này đã được sử dụng.');
-        return;
-      }
-
-      // KHONG luu pass vao accounts - chi dung de validate UI, dung quy tac
-      // "khong luu mat khau" giong users-storage.js.
-      accounts.push({
-        id: `acc-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
-        full_name: fullName,
-        email,
-      });
-
       setLoading(submitBtn, true);
-      setTimeout(() => {
-        setLoading(submitBtn, false);
-        persist('Tạo tài khoản thành công.');
+      try {
+        await auth.register(fullName, email, pass);
         showSuccessDialog('Tạo tài khoản thành công!', 'Đang chuyển hướng tới trang đăng nhập...', 'login.html');
-      }, 300);
+      } catch (error) {
+        if (error.status === 409) showFieldError('email', error.message);
+        else if (error.status === 422) showFieldError('password', error.message);
+        else document.querySelector('.form-card .subtitle').textContent = error.message;
+      } finally {
+        setLoading(submitBtn, false);
+      }
     });
   }
 
@@ -133,28 +112,24 @@
     const loginError = document.getElementById('login-error');
     const password = document.getElementById('password');
 
-    form.addEventListener('submit', (event) => {
+    form.addEventListener('submit', async (event) => {
       event.preventDefault();
       loginError.textContent = '';
       password.classList.remove('has-error');
 
       const email = document.getElementById('email').value.trim();
-      // Day la du lieu mau, chi kiem tra email co trong danh sach da dang ky
-      // hay khong - KHONG kiem tra mat khau that (vi khong luu mat khau).
-      const account = accounts.find((acc) => acc.email.toLowerCase() === email.toLowerCase());
-
       setLoading(submitBtn, true);
-      setTimeout(() => {
+      try {
+        await auth.login(email, password.value);
+        showSuccessDialog('Đăng nhập thành công!', 'Đang chuyển tới Composer...', '../app/composer.html');
+      } catch (error) {
+        loginError.textContent = error.status === 401
+          ? 'Email hoặc mật khẩu không chính xác.'
+          : error.message;
+        password.classList.add('has-error');
+      } finally {
         setLoading(submitBtn, false);
-
-        if (!account) {
-          loginError.textContent = 'Email hoặc mật khẩu không chính xác.';
-          password.classList.add('has-error');
-          return;
-        }
-
-        showSuccessDialog('Đăng nhập thành công!', 'Đang chuyển hướng tới trang chính...', '../app/index.html');
-      }, 300);
+      }
     });
   }
 
@@ -167,5 +142,4 @@
   setupPasswordToggle();
   setupRegisterForm();
   setupLoginForm();
-  if (loaded.warning) notify(loaded.warning);
 })();

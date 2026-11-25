@@ -89,7 +89,8 @@ def require_roles(*allowed_roles):
             Role.id == current_user.role_id
         ).first()
 
-        if not role or role.role_name not in allowed_roles:
+        allowed_names = {name.lower() for name in allowed_roles}
+        if not role or role.role_name.lower() not in allowed_names:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="You do not have permission"

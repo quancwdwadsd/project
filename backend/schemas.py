@@ -44,9 +44,26 @@ class UserLogin(BaseModel):
     password: str
 
 
+class UserRegister(BaseModel):
+    full_name: str = Field(min_length=2, max_length=80)
+    email: EmailStr = Field(max_length=100)
+    password: str = Field(min_length=8, max_length=72)
+
+
+class AuthUserResponse(BaseModel):
+    id: int
+    username: str
+    full_name: str
+    email: str
+    role_id: int
+    role_name: str
+
+
 class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"
+    expires_in: int
+    user: AuthUserResponse
     
 class PostCreate(BaseModel):
     title: str = Field(min_length=1, max_length=200)
