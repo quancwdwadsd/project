@@ -2,12 +2,14 @@
   'use strict';
 
   const store = window.MediaHubSettings;
-  const loaded = store.load();
-  let config = loaded.config;
-  let history = store.loadHistory();
+  const api = window.MediaHubApi;
+  let config = { ...store.defaults };
+  let history = [];
+  let user = null;
+  let allowed = false;
+  let saving = false;
   let pending = null;
   let toastTimer;
-  const allowed = store.canConfigure(store.currentUser);
   const form = document.getElementById('settings-form');
   const formError = document.getElementById('form-error');
   const saveButton = document.getElementById('save-settings');
@@ -18,6 +20,9 @@
   const sidebar = document.getElementById('sidebar');
   const menuToggle = document.getElementById('mobile-menu');
   const overlay = document.getElementById('sidebar-overlay');
+  const logoutButton = document.getElementById('logout-button');
+  const loginForm = document.getElementById('login-form');
+  const loginError = document.getElementById('login-error');
 
   function element(tag, className, text) {
     const node = document.createElement(tag);
@@ -169,24 +174,57 @@
     document.getElementById('history-list').hidden = history.length === 0;
   }
 
-  // ----- Lưu cấu hình -----
-  function commit({ next, changes }) {
-    const saved = store.save(next);
-    config = { ...next };
-    const entry = {
-      id: `chg-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-      at: new Date().toISOString(),
-      by: store.currentUser.name,
-      changes: changes.map(({ label, from, to }) => ({ label, from, to })),
-    };
-    const result = store.appendHistory(history, entry);
-    history = result.history;
-    writeForm(config);
-    showErrors({});
-    renderClock();
-    renderHistory();
-    updateDirty();
-    notify(saved && result.saved ? 'Đã lưu cấu hình.' : 'Đã lưu cấu hình. Trình duyệt không cho lưu; thay đổi chỉ giữ trong lần mở này.');
+  // ----- Lưu cấu hình vào database qua API -----
+  function askConfirm(request, warnings) {
+    pending = request;
+    document.getElementById('impact-list').replaceChildren(...warnings.map((text) => element('li', '', text)));
+    impactDialog.showModal();
+    document.getElementById('impact-cancel').focus();
+  }
+
+  function handleSaveError(error, next, changes) {
+    const detail = error.detail;
+    if (error.status === 422 && detail && typeof detail === 'object' && detail.errors) {
+      showErrors(detail.errors);
+      const first = Object.keys(detail.errors).find((key) => key in store.fields);
+      if (first) form.elements[first].focus();
+      notify('Cấu hình chưa hợp lệ nên chưa được lưu. Cấu hình cũ vẫn đang áp dụng.');
+    } else if (error.status === 409 && detail && Array.isArray(detail.impacts)) {
+      askConfirm({ next, changes }, detail.impacts);
+    } else if (error.status === 401) {
+      api.clearToken();
+      showLogin('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại. Cấu hình chưa được lưu.');
+    } else if (error.status === 403) {
+      notify('Bạn không có quyền thay đổi cấu hình hệ thống.');
+    } else if (error.status === 0) {
+      notify('Không kết nối được máy chủ. Cấu hình chưa được lưu, cấu hình cũ vẫn đang áp dụng.');
+    } else {
+      notify((detail && detail.message) || (typeof detail === 'string' ? detail : 'Không lưu được cấu hình. Cấu hình cũ vẫn đang áp dụng.'));
+    }
+  }
+
+  async function persist(next, changes, confirmImpact) {
+    if (saving) return;
+    saving = true;
+    saveButton.disabled = true;
+    const payload = {};
+    changes.forEach(({ key }) => { payload[key] = next[key]; });
+    try {
+      const result = await api.saveSettings(payload, confirmImpact);
+      config = { ...store.defaults, ...result.values };
+      writeForm(config);
+      showErrors({});
+      renderClock();
+      try { history = toEntries(await api.getHistory()); } catch { /* tải lại lịch sử lỗi thì giữ bản cũ */ }
+      renderHistory();
+      renderLastUpdate();
+      notify('Đã lưu cấu hình vào hệ thống.');
+    } catch (error) {
+      handleSaveError(error, next, changes);
+    } finally {
+      saving = false;
+      updateDirty();
+    }
   }
 
   form.addEventListener('submit', (event) => {
@@ -204,11 +242,8 @@
     const changes = store.diff(config, next);
     if (changes.length === 0) { notify('Không có thay đổi để lưu.'); return; }
     const warnings = store.impacts(config, next);
-    if (warnings.length === 0) { commit({ next, changes }); return; }
-    pending = { next, changes };
-    document.getElementById('impact-list').replaceChildren(...warnings.map((text) => element('li', '', text)));
-    impactDialog.showModal();
-    document.getElementById('impact-cancel').focus();
+    if (warnings.length === 0) { persist(next, changes, false); return; }
+    askConfirm({ next, changes }, warnings);
   });
 
   form.addEventListener('input', (event) => {
@@ -239,7 +274,7 @@
     const request = pending;
     pending = null;
     impactDialog.close();
-    if (request) commit(request);
+    if (request) persist(request.next, request.changes, true);
   });
 
   // ----- Thanh điều hướng (cùng cách làm với trang Người dùng) -----
@@ -264,20 +299,140 @@
     }
   });
   document.querySelectorAll('[data-section]').forEach((button) => button.addEventListener('click', () => notify(`Mục ${button.dataset.section} chưa có trong bản giao diện này.`)));
-  ['account-button', 'profile-button'].forEach((id) => document.getElementById(id).addEventListener('click', () => notify(`Bạn đang đăng nhập với tên ${store.currentUser.name}.`)));
+  ['account-button', 'profile-button'].forEach((id) => document.getElementById(id).addEventListener('click', () => notify(user ? `Bạn đang đăng nhập với tài khoản ${user.username}.` : 'Bạn chưa đăng nhập.')));
   document.getElementById('notifications-button').addEventListener('click', () => notify('Bạn chưa có thông báo mới.'));
 
-  // ----- Khởi tạo -----
-  document.getElementById('settings-fieldset').disabled = !allowed;
-  document.getElementById('access-denied').hidden = allowed;
-  document.getElementById('settings-form').hidden = !allowed;
-  document.getElementById('nav-settings').hidden = !allowed;
-  writeForm(config);
-  showErrors({});
-  renderClock();
-  renderHistory();
-  updateDirty();
-  setSidebar(false);
-  if (loaded.warning) notify(loaded.warning);
-})();
+  // ----- Đăng nhập và tải dữ liệu từ API -----
+  const LOG_PATTERN = /^Đổi cấu hình (.+?): (.+) → (.+)$/;
 
+  // Mỗi dòng nhật ký là một mục được đổi. Gộp các dòng cùng người, cùng thời điểm thành một lần lưu.
+  function toEntries(rows) {
+    const grouped = new Map();
+    rows.forEach((row) => {
+      const match = LOG_PATTERN.exec(row.action);
+      if (!match) return;
+      const key = `${row.user_id}|${row.created_at}`;
+      if (!grouped.has(key)) grouped.set(key, { id: key, by: row.username ?? 'Không rõ', at: row.created_at, changes: [] });
+      grouped.get(key).changes.unshift({ label: match[1], from: match[2], to: match[3] });
+    });
+    return [...grouped.values()];
+  }
+
+  const views = { login: 'login-panel', form: 'settings-form', denied: 'access-denied', error: 'load-error' };
+
+  function setView(name) {
+    Object.entries(views).forEach(([view, id]) => { document.getElementById(id).hidden = view !== name; });
+    document.getElementById('nav-settings').hidden = name === 'denied';
+    document.querySelector('.history-card').hidden = name !== 'form';
+    document.getElementById('last-update').hidden = name !== 'form' || history.length === 0;
+    logoutButton.hidden = !user;
+  }
+
+  const ROLE_LABELS = { admin: 'Quản trị viên', manager: 'Quản lý', editor: 'Biên tập viên', employee: 'Nhân viên', viewer: 'Người xem báo cáo' };
+
+  // Logo (chữ cái đầu) và tên của người đang đăng nhập
+  function initialsOf(name) {
+    const words = String(name).trim().split(/[\s._-]+/).filter(Boolean);
+    if (words.length === 0) return '?';
+    return (words.length === 1 ? words[0].slice(0, 2) : words[0][0] + words[words.length - 1][0]).toUpperCase();
+  }
+
+  function renderUser() {
+    const name = user ? user.username : 'Chưa đăng nhập';
+    const initials = user ? initialsOf(user.username) : '?';
+    document.getElementById('user-initial').textContent = initials.charAt(0);
+    document.getElementById('user-name').textContent = name;
+    document.getElementById('user-initials').textContent = initials;
+    document.getElementById('user-role').textContent = user ? (ROLE_LABELS[user.role.toLowerCase()] ?? user.role) : 'Chưa đăng nhập';
+    document.getElementById('account-button').title = user ? `${user.username} (${user.email})` : '';
+  }
+
+  // "Cập nhật lần cuối bởi ... lúc ..." lấy từ dòng lịch sử mới nhất (người lưu được ghi ở database)
+  function renderLastUpdate() {
+    const node = document.getElementById('last-update');
+    node.hidden = history.length === 0;
+    if (history.length === 0) return;
+    const latest = history[0];
+    const strong = element('strong', '', latest.by);
+    node.replaceChildren('Cập nhật lần cuối bởi ', strong, ` lúc ${store.formatDateTime(latest.at, config.timezone)}.`);
+  }
+
+  function showLogin(message) {
+    user = null;
+    allowed = false;
+    renderUser();
+    setView('login');
+    loginError.hidden = true;
+    document.getElementById('login-note').textContent = message || 'Dùng tài khoản Quản trị viên của hệ thống.';
+    document.getElementById('login-username').focus();
+  }
+
+  function handleLoadError(error) {
+    if (error.status === 401) {
+      api.clearToken();
+      showLogin('Phiên đăng nhập đã hết hạn hoặc không hợp lệ. Vui lòng đăng nhập lại.');
+    } else if (error.status === 403) {
+      setView('denied');
+    } else {
+      setView('error');
+    }
+  }
+
+  async function loadAll() {
+    try {
+      user = await api.me();
+    } catch (error) {
+      handleLoadError(error);
+      return;
+    }
+    allowed = user.can_configure === true;
+    renderUser();
+    if (!allowed) { setView('denied'); return; }
+    try {
+      const [settings, rows] = await Promise.all([api.getSettings(), api.getHistory()]);
+      config = { ...store.defaults, ...settings.values };
+      history = toEntries(rows);
+    } catch (error) {
+      handleLoadError(error);
+      return;
+    }
+    document.getElementById('settings-fieldset').disabled = false;
+    setView('form');
+    writeForm(config);
+    showErrors({});
+    renderClock();
+    renderHistory();
+    renderLastUpdate();
+    updateDirty();
+  }
+
+  loginForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const username = document.getElementById('login-username').value.trim();
+    const password = document.getElementById('login-password').value;
+    const submit = document.getElementById('login-submit');
+    const fail = (message) => { loginError.textContent = message; loginError.hidden = false; };
+    if (!username || !password) { fail('Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.'); return; }
+    submit.disabled = true;
+    try {
+      await api.login(username, password);
+      document.getElementById('login-password').value = '';
+      loginError.hidden = true;
+      await loadAll();
+    } catch (error) {
+      if (error.status === 0) fail('Không kết nối được máy chủ. Kiểm tra backend đã chạy chưa.');
+      else if (error.status === 403) fail(typeof error.detail === 'string' ? error.detail : 'Tài khoản đã bị khóa.');
+      else fail('Tên đăng nhập hoặc mật khẩu không đúng.');
+    } finally {
+      submit.disabled = false;
+    }
+  });
+  logoutButton.addEventListener('click', () => { api.clearToken(); showLogin('Bạn đã đăng xuất.'); });
+  document.getElementById('manage-plan').addEventListener('click', () => notify('Workspace Pro là thông tin trong mẫu thiết kế. Chưa kết nối quản lý gói.'));
+  document.getElementById('retry-load').addEventListener('click', loadAll);
+
+  // ----- Khởi tạo -----
+  setSidebar(false);
+  if (api.getToken()) loadAll();
+  else showLogin();
+})();
