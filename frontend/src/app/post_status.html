@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#151e1a">
+  <title>Quản lý bài đăng · MediaHub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/style.css">
+  <link rel="stylesheet" href="../features/composer/composer.css">
+  <link rel="stylesheet" href="../features/post_status/post-status.css">
+  <script src="../features/auth/services/auth-storage.js" defer></script>
+  <script src="../features/post_status/services/post-status-api.js" defer></script>
+  <script src="../features/post_status/post-status.js" defer></script>
+</head>
+<body class="composer-app post-status-app">
+  <svg class="icon-definitions" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="icon-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></symbol>
+    <symbol id="icon-channel" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M7 8h10M7 12h6M7 16h8"/></symbol>
+    <symbol id="icon-content" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 7h6M9 11h6M9 15h4"/></symbol>
+    <symbol id="icon-approve" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></symbol>
+    <symbol id="icon-calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18"/></symbol>
+    <symbol id="icon-task" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="m8 12 3 3 5-6"/></symbol>
+    <symbol id="icon-chart" viewBox="0 0 24 24"><path d="M4 20v-7M10 20V8M16 20V4M22 20V10"/></symbol>
+    <symbol id="icon-users" viewBox="0 0 24 24"><circle cx="9" cy="7" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3M16 4a3 3 0 0 1 0 6M21 21v-3a4 4 0 0 0-4-4"/></symbol>
+    <symbol id="icon-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></symbol>
+    <symbol id="icon-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/></symbol>
+    <symbol id="icon-bell" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></symbol>
+    <symbol id="icon-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14-4L4 9M4 4v5h5M4 13a8 8 0 0 0 14 4l2-2M20 20v-5h-5"/></symbol>
+    <symbol id="icon-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="icon-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+    <symbol id="icon-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+  </svg>
+  <div class="workspace">
+    <button class="sidebar-overlay" id="sidebar-overlay" aria-label="Đóng thanh điều hướng" hidden></button>
+    <aside class="sidebar" id="sidebar" aria-label="Không gian làm việc">
+      <a class="brand" href="./composer.html" aria-label="MediaHub — Studio"><span class="brand-mark">m.</span><span>mediahub</span></a>
+      <p class="nav-label">Workspace</p>
+      <nav class="navigation" aria-label="Điều hướng chính">
+        <button class="nav-item" type="button" data-section="Tổng quan"><svg class="icon"><use href="#icon-grid"/></svg><span>Tổng quan</span></button>
+        <button class="nav-item" type="button" data-section="Kênh truyền thông"><svg class="icon"><use href="#icon-channel"/></svg><span>Kênh truyền thông</span></button>
+        <a class="nav-item" href="./composer.html"><svg class="icon"><use href="#icon-content"/></svg><span>Thư viện nội dung</span></a>
+        <a class="nav-item" href="./approvals.html"><svg class="icon"><use href="#icon-approve"/></svg><span>Duyệt nội dung</span></a>
+        <a class="nav-item is-active" href="./post_status.html" aria-current="page"><svg class="icon"><use href="#icon-calendar"/></svg><span>Quản lý bài đăng</span></a>
+        <button class="nav-item" type="button" data-section="Lịch xuất bản"><svg class="icon"><use href="#icon-calendar"/></svg><span>Lịch xuất bản</span></button>
+        <button class="nav-item" type="button" data-section="Công việc"><svg class="icon"><use href="#icon-task"/></svg><span>Công việc</span></button>
+        <a class="nav-item" href="./reports.html"><svg class="icon"><use href="#icon-chart"/></svg><span>Báo cáo phân tích</span></a>
+        <a class="nav-item" href="./user_management.html"><svg class="icon"><use href="#icon-users"/></svg><span>Người dùng</span></a>
+        <a class="nav-item" href="./settings.html"><svg class="icon"><use href="#icon-settings"/></svg><span>Cấu hình hệ thống</span></a>
+      </nav>
+      <div class="sidebar-bottom"><button class="account-button" type="button"><span class="avatar avatar-account">M</span><span>MediaHub Studio</span></button></div>
+    </aside>
+    <div class="workspace-main">
+      <header class="topbar">
+        <button type="button" class="icon-button mobile-menu" id="mobile-menu" aria-label="Mở thanh điều hướng" aria-expanded="false" aria-controls="sidebar"><svg class="icon"><use href="#icon-menu"/></svg></button>
+        <div class="breadcrumb"><span>MediaHub</span><span class="breadcrumb-divider">/</span><span>Quản lý bài đăng</span></div>
+        <div class="topbar-actions">
+          <label class="search-box post-search" for="post-search"><svg class="icon"><use href="#icon-search"/></svg><input id="post-search" type="search" placeholder="Tìm bài đăng..." autocomplete="off" aria-label="Tìm bài đăng"></label>
+          <button type="button" class="icon-button notification-button" aria-label="Thông báo"><svg class="icon"><use href="#icon-bell"/></svg></button>
+          <a class="button button-secondary create-post-link" href="./composer.html"><svg class="icon"><use href="#icon-plus"/></svg>Tạo bài</a>
+        </div>
+      </header>
+      <main class="page-content post-status-page" id="main-content">
+        <section class="page-heading composer-heading" aria-labelledby="page-title">
+          <div><p class="eyebrow">Studio / Xuất bản</p><h1 id="page-title">Theo dõi bài đăng.</h1><p class="page-description">Trạng thái theo từng kênh, cùng toàn bộ lịch sử thao tác.</p></div>
+          <div class="heading-actions"><button type="button" class="button button-secondary" id="reload-button"><svg class="icon"><use href="#icon-refresh"/></svg>Tải lại</button></div>
+        </section>
+        <div class="status-banner" id="status-banner" role="alert" hidden></div>
+        <section class="status-filters" aria-label="Lọc theo trạng thái" id="status-filters"></section>
+        <div class="status-toolbar">
+          <label class="filter-select"><span>Kênh</span><select id="channel-filter" aria-label="Lọc theo kênh"><option value="">Tất cả kênh</option></select></label>
+          <label class="filter-select"><span>Chiến dịch</span><select id="campaign-filter" aria-label="Lọc theo chiến dịch"><option value="">Tất cả chiến dịch</option></select></label>
+          <p class="list-summary" id="list-summary" role="status"></p>
+        </div>
+        <div class="status-layout">
+          <section class="composer-card status-list-card" aria-labelledby="list-heading">
+            <div class="status-list-heading"><div><p class="eyebrow">Nội dung</p><h2 id="list-heading">Bài đăng gần đây</h2></div><span id="loading-label" class="loading-label" role="status" hidden>Đang tải...</span></div>
+            <div class="post-list" id="post-list" aria-live="polite"></div>
+            <div class="empty-state" id="empty-state" hidden><span class="empty-mark">m.</span><strong>Chưa có bài phù hợp</strong><p>Thử xóa bớt bộ lọc hoặc soạn một bài mới.</p><a class="button button-primary" href="./composer.html">Tạo bài viết</a></div>
+          </section>
+          <aside class="composer-card status-detail-card" id="status-detail-card" aria-labelledby="detail-title" aria-live="polite">
+            <div class="status-detail-heading"><div><p class="eyebrow">Theo dõi</p><h2 id="detail-title">Chọn một bài đăng</h2></div><button class="icon-button close-detail" id="close-detail" type="button" aria-label="Đóng chi tiết"><svg class="icon"><use href="#icon-close"/></svg></button></div>
+            <div id="detail-content" class="detail-content"><div class="detail-placeholder"><span class="detail-placeholder-line"></span><span class="detail-placeholder-line short"></span><p>Chọn một bài trong danh sách để xem trạng thái từng kênh và nhật ký.</p></div></div>
+          </aside>
+        </div>
+        <section class="composer-card activity-card" aria-labelledby="activity-title">
+          <div class="status-list-heading"><div><p class="eyebrow">Nhật ký</p><h2 id="activity-title">Hoạt động gần đây</h2></div><span class="activity-caption">Người thực hiện · Nội dung · Thời điểm</span></div>
+          <div id="activity-list" class="activity-list" aria-live="polite"></div>
+        </section>
+      </main>
+    </div>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>

@@ -90,6 +90,20 @@ class Schedule(Base):
     scheduled_time = Column(DateTime, nullable=False)
     publish_status = Column(String(30), default="pending")
     platform_post_id = Column(String(100))
+    published_url = Column(String(500), nullable=True)
+    created_at = Column(DateTime, server_default=func.current_timestamp())
+
+
+class PostStatusHistory(Base):
+    __tablename__ = "post_status_history"
+
+    id = Column(Integer, primary_key=True, index=True)
+    post_id = Column(Integer, ForeignKey("posts.id"), nullable=False, index=True)
+    schedule_id = Column(Integer, ForeignKey("schedules.id"), nullable=True, index=True)
+    from_status = Column(String(30), nullable=True)
+    to_status = Column(String(30), nullable=False)
+    changed_by = Column(Integer, ForeignKey("users.id"), nullable=True)
+    reason = Column(Text, nullable=True)
     created_at = Column(DateTime, server_default=func.current_timestamp())
 
 

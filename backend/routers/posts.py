@@ -1,8 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 
 from database import get_db
-from models import Post, User
+from models import Post, PostStatusHistory, User
+from activity_logger import record_activity
+from status_history import record_post_status_change
 from schemas import PostCreate, PostUpdate, PostStatusUpdate, PostResponse
 from security import get_current_user, require_roles
 
@@ -38,6 +40,7 @@ def get_post(
 @router.post("/", response_model=PostResponse)
 def create_post(
     post_data: PostCreate,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
@@ -50,6 +53,9 @@ def create_post(
     )
 
     db.add(post)
+    db.flush()
+    record_post_status_change(db, post.id, "draft", current_user.id, reason="Tạo bài viết")
+    record_activity(db, current_user.id, f"Tạo bài #{post.id}: {post.title[:180]}", request.client.host if request.client else None)
     db.commit()
     db.refresh(post)
 
@@ -93,6 +99,9 @@ def delete_post(
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
 
+    if db.query(PostStatusHistory.id).filter(PostStatusHistory.post_id == post.id).first():
+        raise HTTPException(status_code=409, detail="Bài đăng có lịch sử theo dõi và không thể xóa. Hãy hủy lịch đăng nếu cần.")
+
     db.delete(post)
     db.commit()
 
@@ -103,6 +112,7 @@ def delete_post(
 def update_post_status(
     post_id: int,
     status_data: PostStatusUpdate,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_roles("Admin", "Manager"))
 ):
@@ -116,6 +126,7 @@ def update_post_status(
     if status_data.status not in allowed_statuses:
         raise HTTPException(status_code=400, detail="Invalid post status")
 
+    previous_status = post.status or "draft"
     post.status = status_data.status
 
     if status_data.status == "approved":
@@ -125,6 +136,22 @@ def update_post_status(
         post.reject_reason = status_data.reject_reason
     else:
         post.reject_reason = None
+
+    if previous_status != post.status:
+        reason = status_data.reject_reason if status_data.status == "rejected" else None
+        record_post_status_change(
+            db, post.id, post.status, current_user.id,
+            from_status=previous_status, reason=reason
+        )
+        status_labels = {
+            "draft": "Nháp", "pending": "Chờ duyệt", "approved": "Đã duyệt",
+            "rejected": "Bị từ chối", "published": "Đã đăng",
+        }
+        record_activity(
+            db, current_user.id,
+            f"Cập nhật trạng thái nội dung #{post.id}: {status_labels.get(previous_status, previous_status)} → {status_labels.get(post.status, post.status)}",
+            request.client.host if request.client else None
+        )
 
     db.commit()
     db.refresh(post)

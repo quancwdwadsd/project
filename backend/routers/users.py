@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 import bcrypt
@@ -13,7 +13,8 @@ from schemas import (
     UserResponse
 )
 from schemas import UserAccessUpdate
-from security import require_roles
+from security import get_current_user, require_roles
+from activity_logger import record_activity
 
 router = APIRouter(
     prefix="/users",
@@ -28,7 +29,7 @@ def get_roles(db: Session = Depends(get_db)):
             for role in db.query(Role).order_by(Role.id).all()]
 
 
-def access_change(db, user_id, role_id=None, status=None, delete=False):
+def access_change(db, user_id, role_id=None, status=None, delete=False, actor_id=None, ip_address=None):
     # Lock users in a consistent order so concurrent changes cannot remove both admins.
     users = db.query(User).order_by(User.id).populate_existing().with_for_update().all()
     user = next((item for item in users if item.id == user_id), None)
@@ -39,16 +40,29 @@ def access_change(db, user_id, role_id=None, status=None, delete=False):
     if target_role is None:
         raise HTTPException(404, "Role not found")
     target_status = user.status if status is None else status
+    old_role_name = roles[user.role_id].role_name if user.role_id in roles else str(user.role_id)
+    old_status = user.status
     admin_ids = {role.id for role in roles.values() if role.role_name.lower() == "admin"}
     if (user.role_id in admin_ids and user.status
             and (delete or target_role.id not in admin_ids or not target_status)
             and not any(item.id != user.id and item.role_id in admin_ids and item.status for item in users)):
         raise HTTPException(409, "Cần giữ ít nhất một quản trị viên đang hoạt động.")
     if delete:
+        if actor_id is not None:
+            record_activity(db, actor_id, f"Thu hồi quyền và xóa người dùng {user.username}", ip_address)
         db.delete(user)
     else:
         user.role_id = target_role.id
         user.status = target_status
+        if actor_id is not None and (old_role_name != target_role.role_name or old_status != target_status):
+            changes = []
+            if old_role_name != target_role.role_name:
+                changes.append(f"vai trò {old_role_name} → {target_role.role_name}")
+            if old_status != target_status:
+                old_label = "hoạt động" if old_status else "đã khóa"
+                new_label = "hoạt động" if target_status else "đã khóa"
+                changes.append(f"trạng thái {old_label} → {new_label}")
+            record_activity(db, actor_id, f"Đổi quyền người dùng {user.username}: " + "; ".join(changes), ip_address)
     try:
         db.commit()
     except IntegrityError:
@@ -62,13 +76,13 @@ def access_change(db, user_id, role_id=None, status=None, delete=False):
 
 
 @router.patch("/{user_id}/access", response_model=UserResponse)
-def update_user_access(user_id: int, data: UserAccessUpdate, db: Session = Depends(get_db)):
-    return access_change(db, user_id, data.role_id, data.status)
+def update_user_access(user_id: int, data: UserAccessUpdate, request: Request, db: Session = Depends(get_db), actor: User = Depends(get_current_user)):
+    return access_change(db, user_id, data.role_id, data.status, actor_id=actor.id, ip_address=request.client.host if request.client else None)
 
 
 @router.delete("/{user_id}", status_code=204)
-def delete_user(user_id: int, db: Session = Depends(get_db)):
-    access_change(db, user_id, delete=True)
+def delete_user(user_id: int, request: Request, db: Session = Depends(get_db), actor: User = Depends(get_current_user)):
+    access_change(db, user_id, delete=True, actor_id=actor.id, ip_address=request.client.host if request.client else None)
 
 
 # GET /users/
@@ -232,9 +246,11 @@ def update_user(
 def update_user_role(
     user_id: int,
     role_data: UserRoleUpdate,
-    db: Session = Depends(get_db)
+    request: Request,
+    db: Session = Depends(get_db),
+    actor: User = Depends(get_current_user)
 ):
-    return access_change(db, user_id, role_id=role_data.role_id)
+    return access_change(db, user_id, role_id=role_data.role_id, actor_id=actor.id, ip_address=request.client.host if request.client else None)
 
 
 # PATCH /users/{user_id}/status
@@ -242,6 +258,8 @@ def update_user_role(
 def update_user_status(
     user_id: int,
     status_data: UserStatusUpdate,
-    db: Session = Depends(get_db)
+    request: Request,
+    db: Session = Depends(get_db),
+    actor: User = Depends(get_current_user)
 ):
-    return access_change(db, user_id, status=status_data.status)
+    return access_change(db, user_id, status=status_data.status, actor_id=actor.id, ip_address=request.client.host if request.client else None)
