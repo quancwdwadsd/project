@@ -2,6 +2,7 @@
   'use strict';
 
   const api = window.MediaHubApprovalsApi;
+  const auth = window.MediaHubAuth;
   const STATUS_LABELS = {
     draft: 'Nháp',
     pending: 'Chờ duyệt',
@@ -108,27 +109,14 @@
     byId('approval-banner').hidden = !message;
   }
 
-  function showLogin(message = '') {
-    api.clearToken();
-    state.me = null;
-    byId('approval-view').hidden = true;
-    byId('login-panel').hidden = false;
-    byId('reload-button').hidden = true;
-    byId('logout-button').hidden = true;
-    byId('approval-search').disabled = true;
-    byId('user-name').textContent = 'Chưa đăng nhập';
-    byId('user-initial').textContent = '?';
-    byId('profile-initials').textContent = '?';
-    byId('profile-role').textContent = 'Chưa đăng nhập';
-    showBanner('');
-    const loginError = byId('login-error');
-    loginError.textContent = message;
-    loginError.hidden = !message;
+  function goToLogin() {
+    auth?.endSession();
+    window.location.replace('./login.html');
   }
 
   function handleFailure(error, { toast = true } = {}) {
     if (error.status === 401) {
-      showLogin(errorMessage(error));
+      goToLogin();
       return;
     }
     if (toast) notify(errorMessage(error), 'error');
@@ -381,21 +369,19 @@
   async function start() {
     showBanner('');
     if (!api.getToken()) {
-      showLogin();
+      window.location.replace('./login.html');
       return;
     }
     try {
       state.me = await api.me();
     } catch (error) {
-      if (error.status === 401) showLogin(errorMessage(error));
+      if (error.status === 401) goToLogin();
       else {
-        byId('login-panel').hidden = true;
         byId('reload-button').hidden = false;
         showBanner(errorMessage(error));
       }
       return;
     }
-    byId('login-panel').hidden = true;
     byId('user-name').textContent = state.me.username;
     byId('user-initial').textContent = state.me.username.charAt(0).toUpperCase();
     byId('profile-initials').textContent = state.me.username.slice(0, 2).toUpperCase();
@@ -420,30 +406,6 @@
   }
 
   function bindEvents() {
-    byId('login-form').addEventListener('submit', async (event) => {
-      event.preventDefault();
-      const username = byId('login-username').value.trim();
-      const password = byId('login-password').value;
-      const error = byId('login-error');
-      if (!username || !password) {
-        error.textContent = 'Nhập tên đăng nhập và mật khẩu.';
-        error.hidden = false;
-        return;
-      }
-      const submit = byId('login-submit');
-      submit.disabled = true;
-      try {
-        await api.login(username, password);
-        byId('login-password').value = '';
-        error.hidden = true;
-        await start();
-      } catch (failure) {
-        error.textContent = failure.status === 0 ? errorMessage(failure) : failure.status === 401 || failure.status === 400 ? 'Tên đăng nhập hoặc mật khẩu không đúng.' : errorMessage(failure);
-        error.hidden = false;
-      } finally {
-        submit.disabled = false;
-      }
-    });
 
     byId('reject-form').addEventListener('submit', submitReject);
     byId('reject-reason').addEventListener('input', (event) => {
@@ -465,7 +427,7 @@
 
     byId('reload-button').addEventListener('click', () => (state.me ? loadList() : start()));
     byId('banner-retry').addEventListener('click', start);
-    byId('logout-button').addEventListener('click', () => showLogin());
+    byId('logout-button').addEventListener('click', () => { auth?.endSession(); window.location.replace('./login.html'); });
 
     byId('mobile-menu').addEventListener('click', () => {
       const isOpen = byId('sidebar').classList.toggle('is-open');

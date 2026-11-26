@@ -21,8 +21,7 @@
   const menuToggle = document.getElementById('mobile-menu');
   const overlay = document.getElementById('sidebar-overlay');
   const logoutButton = document.getElementById('logout-button');
-  const loginForm = document.getElementById('login-form');
-  const loginError = document.getElementById('login-error');
+  const auth = window.MediaHubAuth;
 
   function element(tag, className, text) {
     const node = document.createElement(tag);
@@ -192,8 +191,7 @@
     } else if (error.status === 409 && detail && Array.isArray(detail.impacts)) {
       askConfirm({ next, changes }, detail.impacts);
     } else if (error.status === 401) {
-      api.clearToken();
-      showLogin('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại. Cấu hình chưa được lưu.');
+      goToLogin();
     } else if (error.status === 403) {
       notify('Bạn không có quyền thay đổi cấu hình hệ thống.');
     } else if (error.status === 0) {
@@ -318,7 +316,8 @@
     return [...grouped.values()];
   }
 
-  const views = { login: 'login-panel', form: 'settings-form', denied: 'access-denied', error: 'load-error' };
+  const views = { form: 'settings-form', denied: 'access-denied', error: 'load-error' };
+  // UC01 dùng session chung; trang cấu hình không còn loginPanel riêng.
 
   function setView(name) {
     Object.entries(views).forEach(([view, id]) => { document.getElementById(id).hidden = view !== name; });
@@ -357,20 +356,14 @@
     node.replaceChildren('Cập nhật lần cuối bởi ', strong, ` lúc ${store.formatDateTime(latest.at, config.timezone)}.`);
   }
 
-  function showLogin(message) {
-    user = null;
-    allowed = false;
-    renderUser();
-    setView('login');
-    loginError.hidden = true;
-    document.getElementById('login-note').textContent = message || 'Dùng tài khoản Quản trị viên của hệ thống.';
-    document.getElementById('login-username').focus();
+  function goToLogin() {
+    auth?.endSession();
+    window.location.replace('./login.html');
   }
 
   function handleLoadError(error) {
     if (error.status === 401) {
-      api.clearToken();
-      showLogin('Phiên đăng nhập đã hết hạn hoặc không hợp lệ. Vui lòng đăng nhập lại.');
+      goToLogin();
     } else if (error.status === 403) {
       setView('denied');
     } else {
@@ -406,33 +399,13 @@
     updateDirty();
   }
 
-  loginForm.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const username = document.getElementById('login-username').value.trim();
-    const password = document.getElementById('login-password').value;
-    const submit = document.getElementById('login-submit');
-    const fail = (message) => { loginError.textContent = message; loginError.hidden = false; };
-    if (!username || !password) { fail('Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.'); return; }
-    submit.disabled = true;
-    try {
-      await api.login(username, password);
-      document.getElementById('login-password').value = '';
-      loginError.hidden = true;
-      await loadAll();
-    } catch (error) {
-      if (error.status === 0) fail('Không kết nối được máy chủ. Kiểm tra backend đã chạy chưa.');
-      else if (error.status === 403) fail(typeof error.detail === 'string' ? error.detail : 'Tài khoản đã bị khóa.');
-      else fail('Tên đăng nhập hoặc mật khẩu không đúng.');
-    } finally {
-      submit.disabled = false;
-    }
-  });
-  logoutButton.addEventListener('click', () => { api.clearToken(); showLogin('Bạn đã đăng xuất.'); });
+
+  logoutButton.addEventListener('click', () => { auth?.endSession(); window.location.replace('./login.html'); });
   document.getElementById('manage-plan').addEventListener('click', () => notify('Workspace Pro là thông tin trong mẫu thiết kế. Chưa kết nối quản lý gói.'));
   document.getElementById('retry-load').addEventListener('click', loadAll);
 
   // ----- Khởi tạo -----
   setSidebar(false);
   if (api.getToken()) loadAll();
-  else showLogin();
+  else window.location.replace('./login.html');
 })();

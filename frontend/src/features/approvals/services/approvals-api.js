@@ -2,7 +2,10 @@
   'use strict';
 
   const API_BASE = (window.MEDIAHUB_API_BASE || 'http://127.0.0.1:8000').replace(/\/$/, '');
-  const TOKEN_KEY = 'mediahub.token';
+  const auth = window.MediaHubAuth;
+  // Reuse the shared UC01 session. This module does not authenticate independently.
+  const getToken = () => auth?.getSession()?.access_token || null;
+  const clearToken = () => auth?.endSession();
 
   class ApiError extends Error {
     constructor(status, detail) {
@@ -12,17 +15,7 @@
     }
   }
 
-  const getToken = () => {
-    try { return localStorage.getItem(TOKEN_KEY); } catch { return null; }
-  };
 
-  const setToken = (token) => {
-    try { localStorage.setItem(TOKEN_KEY, token); } catch { return; }
-  };
-
-  const clearToken = () => {
-    try { localStorage.removeItem(TOKEN_KEY); } catch { return; }
-  };
 
   async function request(path, { method = 'GET', body, auth = true } = {}) {
     const headers = { Accept: 'application/json' };
@@ -47,14 +40,7 @@
     return data;
   }
 
-  async function login(usernameOrEmail, password) {
-    const data = await request('/auth/login', {
-      method: 'POST',
-      auth: false,
-      body: { username_or_email: usernameOrEmail, password },
-    });
-    setToken(data.access_token);
-  }
+
 
   function list({ status, q, limit = 100, offset = 0 } = {}) {
     const params = new URLSearchParams({ limit: String(limit), offset: String(offset) });
@@ -67,7 +53,6 @@
     ApiError,
     getToken,
     clearToken,
-    login,
     me: () => request('/approvals/me'),
     list,
     detail: (id) => request(`/approvals/${id}`),

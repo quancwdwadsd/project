@@ -58,3 +58,8 @@ Danh sách, khoảng giá trị và mặc định nằm ở `backend/settings_ru
 
 - Khung đăng nhập trên trang cấu hình là **tạm thời**. Trang Đăng nhập chung chỉ cần lưu `access_token` vào `localStorage` với khóa `mediahub.token` là trang cấu hình dùng được ngay.
 - Bảng `system_settings` chưa có trong ERD và từ điển dữ liệu, cần bổ sung.
+
+
+## Tích hợp đăng nhập chung (UC01)
+
+Trang cấu hình hệ thống sử dụng phiên đăng nhập chung do `MediaHubAuth` tạo (`mediahub.session.v1`). Không có form đăng nhập/token riêng trong trang cấu hình. Nếu phiên không tồn tại hoặc hết hạn, trang chuyển về `login.html`.
