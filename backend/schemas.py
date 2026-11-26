@@ -57,6 +57,7 @@ class AuthUserResponse(BaseModel):
     email: str
     role_id: int
     role_name: str
+    avatar_url: Optional[str] = None
 
 
 class Token(BaseModel):
@@ -99,6 +100,15 @@ class PostResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class PostDraftSummaryResponse(BaseModel):
+    id: int
+    title: str
+    campaign_tag: Optional[str]
+    composer_data: Optional[dict] = None
+    created_at: Optional[datetime]
+    updated_at: Optional[datetime]
 
 
 class ChannelCreate(BaseModel):

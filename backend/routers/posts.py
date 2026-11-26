@@ -6,7 +6,7 @@ from database import get_db
 from models import Post, Role, Schedule, User
 from activity_logger import record_activity
 from status_history import record_post_status_change
-from schemas import PostCreate, PostUpdate, PostStatusUpdate, PostResponse
+from schemas import PostCreate, PostDraftSummaryResponse, PostUpdate, PostStatusUpdate, PostResponse
 from security import get_current_user, require_roles
 
 
@@ -31,6 +31,21 @@ def get_posts(
     if mine or not can_manage_all_posts(db, current_user):
         query = query.filter(Post.created_by == current_user.id)
     return query.order_by(Post.id.desc()).all()
+
+
+@router.get("/drafts/summary", response_model=list[PostDraftSummaryResponse])
+def get_post_draft_summaries(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    mine: bool = True,
+):
+    query = db.query(
+        Post.id, Post.title, Post.campaign_tag, Post.composer_data,
+        Post.created_at, Post.updated_at,
+    ).filter(Post.deleted_at.is_(None))
+    if mine or not can_manage_all_posts(db, current_user):
+        query = query.filter(Post.created_by == current_user.id)
+    return [dict(row._mapping) for row in query.order_by(Post.id.desc()).all()]
 
 
 @router.get("/{post_id}", response_model=PostResponse)

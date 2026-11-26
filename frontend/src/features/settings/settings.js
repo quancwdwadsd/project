@@ -20,8 +20,6 @@
   const sidebar = document.getElementById('sidebar');
   const menuToggle = document.getElementById('mobile-menu');
   const overlay = document.getElementById('sidebar-overlay');
-  const logoutButton = document.getElementById('logout-button');
-  const auth = window.MediaHubAuth;
 
   function element(tag, className, text) {
     const node = document.createElement(tag);
@@ -191,7 +189,7 @@
     } else if (error.status === 409 && detail && Array.isArray(detail.impacts)) {
       askConfirm({ next, changes }, detail.impacts);
     } else if (error.status === 401) {
-      goToLogin();
+      return;
     } else if (error.status === 403) {
       notify('Bạn không có quyền thay đổi cấu hình hệ thống.');
     } else if (error.status === 0) {
@@ -278,14 +276,14 @@
   // ----- Thanh điều hướng (cùng cách làm với trang Người dùng) -----
   function setSidebar(open) {
     sidebar.classList.toggle('is-open', open);
-    sidebar.inert = window.matchMedia('(max-width: 700px)').matches && !open;
+    sidebar.inert = window.matchMedia('(max-width: 900px)').matches && !open;
     overlay.hidden = !open;
     menuToggle.setAttribute('aria-expanded', String(open));
     if (open) sidebar.querySelector('a').focus();
   }
   menuToggle.addEventListener('click', () => setSidebar(!sidebar.classList.contains('is-open')));
   overlay.addEventListener('click', () => { setSidebar(false); menuToggle.focus(); });
-  window.matchMedia('(min-width: 701px)').addEventListener('change', () => setSidebar(false));
+  window.matchMedia('(min-width: 901px)').addEventListener('change', () => setSidebar(false));
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape' && sidebar.classList.contains('is-open')) { setSidebar(false); menuToggle.focus(); }
     if (event.key === 'Tab' && sidebar.classList.contains('is-open')) {
@@ -297,7 +295,6 @@
     }
   });
   document.querySelectorAll('[data-section]').forEach((button) => button.addEventListener('click', () => notify(`Mục ${button.dataset.section} chưa có trong bản giao diện này.`)));
-  ['account-button', 'profile-button'].forEach((id) => document.getElementById(id).addEventListener('click', () => notify(user ? `Bạn đang đăng nhập với tài khoản ${user.username}.` : 'Bạn chưa đăng nhập.')));
   document.getElementById('notifications-button').addEventListener('click', () => notify('Bạn chưa có thông báo mới.'));
 
   // ----- Đăng nhập và tải dữ liệu từ API -----
@@ -321,29 +318,13 @@
 
   function setView(name) {
     Object.entries(views).forEach(([view, id]) => { document.getElementById(id).hidden = view !== name; });
-    document.getElementById('nav-settings').hidden = name === 'denied';
     document.querySelector('.history-card').hidden = name !== 'form';
     document.getElementById('last-update').hidden = name !== 'form' || history.length === 0;
-    logoutButton.hidden = !user;
-  }
-
-  const ROLE_LABELS = { admin: 'Quản trị viên', manager: 'Quản lý', editor: 'Biên tập viên', employee: 'Nhân viên', viewer: 'Người xem báo cáo' };
-
-  // Logo (chữ cái đầu) và tên của người đang đăng nhập
-  function initialsOf(name) {
-    const words = String(name).trim().split(/[\s._-]+/).filter(Boolean);
-    if (words.length === 0) return '?';
-    return (words.length === 1 ? words[0].slice(0, 2) : words[0][0] + words[words.length - 1][0]).toUpperCase();
   }
 
   function renderUser() {
-    const name = user ? user.username : 'Chưa đăng nhập';
-    const initials = user ? initialsOf(user.username) : '?';
-    document.getElementById('user-initial').textContent = initials.charAt(0);
-    document.getElementById('user-name').textContent = name;
-    document.getElementById('user-initials').textContent = initials;
-    document.getElementById('user-role').textContent = user ? (ROLE_LABELS[user.role.toLowerCase()] ?? user.role) : 'Chưa đăng nhập';
-    document.getElementById('account-button').title = user ? `${user.username} (${user.email})` : '';
+    const button = document.getElementById('account-button');
+    if (button) button.title = user ? `${user.username} (${user.email})` : '';
   }
 
   // "Cập nhật lần cuối bởi ... lúc ..." lấy từ dòng lịch sử mới nhất (người lưu được ghi ở database)
@@ -356,15 +337,9 @@
     node.replaceChildren('Cập nhật lần cuối bởi ', strong, ` lúc ${store.formatDateTime(latest.at, config.timezone)}.`);
   }
 
-  function goToLogin() {
-    auth?.endSession();
-    window.location.replace('./login.html');
-  }
-
   function handleLoadError(error) {
-    if (error.status === 401) {
-      goToLogin();
-    } else if (error.status === 403) {
+    if (error.status === 401) return;
+    else if (error.status === 403) {
       setView('denied');
     } else {
       setView('error');
@@ -400,12 +375,9 @@
   }
 
 
-  logoutButton.addEventListener('click', () => { auth?.endSession(); window.location.replace('./login.html'); });
-  document.getElementById('manage-plan').addEventListener('click', () => notify('Workspace Pro là thông tin trong mẫu thiết kế. Chưa kết nối quản lý gói.'));
   document.getElementById('retry-load').addEventListener('click', loadAll);
 
   // ----- Khởi tạo -----
   setSidebar(false);
   if (api.getToken()) loadAll();
-  else window.location.replace('./login.html');
 })();

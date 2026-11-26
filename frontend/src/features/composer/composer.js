@@ -19,17 +19,10 @@
 
   const byId = (id) => document.getElementById(id);
   const auth = window.MediaHubAuth;
-  if (!auth?.getSession()) {
-    window.location.replace('./login.html');
-    return;
-  }
+  if (!auth?.getSession()) return;
 
   function showApiError(error) {
-    if (error.status === 401) {
-      auth.endSession();
-      window.location.replace('./login.html?reason=expired');
-      return;
-    }
+    if (error.status === 401) return;
     notify(error.message || 'Không thể kết nối với máy chủ.', 'error');
   }
   const selectedChannels = () => {

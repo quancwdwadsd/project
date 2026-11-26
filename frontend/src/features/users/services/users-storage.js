@@ -1,25 +1,11 @@
 (() => {
   'use strict';
-  const baseUrl = (document.querySelector('meta[name="api-base-url"]')?.content || 'http://127.0.0.1:8000').replace(/\/$/, '');
   const roles = {};
   const statuses = Object.freeze({ active: 'Hoạt động', locked: 'Đã khóa' });
   const roleNames = { admin: 'Quản trị viên', manager: 'Quản lý', editor: 'Biên tập viên', employee: 'Nhân viên', viewer: 'Người xem báo cáo' };
   const adminRoles = new Set();
   async function request(path, method = 'GET', data) {
-    let response;
-    try {
-      response = await fetch(`${baseUrl}${path}`, {
-        method, headers: { 'Content-Type': 'application/json' },
-        ...(data === undefined ? {} : { body: JSON.stringify(data) }),
-        signal: AbortSignal.timeout(15000),
-      });
-    } catch { throw new Error('Không kết nối được máy chủ. Vui lòng kiểm tra backend và thử lại.'); }
-    if (!response.ok) {
-      const result = await response.json().catch(() => ({}));
-      const detail = result.detail;
-      throw new Error(Array.isArray(detail) ? detail.map((item) => `${item.loc.at(-1)}: ${item.msg}`).join('; ') : detail || 'Không thể lưu dữ liệu. Vui lòng thử lại.');
-    }
-    return response.status === 204 ? null : response.json();
+    return window.MediaHubAuth.request(path, { method, ...(data === undefined ? {} : { body: JSON.stringify(data) }), signal: AbortSignal.timeout(15000) }, true);
   }
   function toUser(user) {
     return { id: user.id, name: user.username, email: user.email, role: String(user.role_id), status: user.status ? 'active' : 'locked' };

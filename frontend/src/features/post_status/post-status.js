@@ -159,11 +159,8 @@
       : typeof error.detail === 'string' ? error.detail : error.status === 403
         ? 'Tài khoản của bạn chưa được cấp quyền xem trang này.'
         : 'Không tải được dữ liệu. Hãy kiểm tra máy chủ rồi thử lại.';
-    if (error.status === 401) {
-      banner.innerHTML = `${escapeHtml(message)} <a href="./login.html">Đăng nhập</a>`;
-    } else {
-      banner.textContent = message;
-    }
+    if (error.status === 401) return;
+    banner.textContent = message;
     banner.hidden = false;
     byId('reload-button').hidden = false;
   }

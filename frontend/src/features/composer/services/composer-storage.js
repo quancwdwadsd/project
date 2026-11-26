@@ -116,7 +116,7 @@
 
   async function loadDrafts(query = '') {
     await migrateLegacyDrafts();
-    const posts = await apiRequest('/posts/?mine=true');
+    const posts = await apiRequest('/posts/drafts/summary?mine=true');
     const normalizedQuery = normalize(query.trim());
     const allDrafts = posts.map(fromPost);
     const drafts = allDrafts.filter((draft) => !normalizedQuery || normalize([

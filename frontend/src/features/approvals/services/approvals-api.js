@@ -1,9 +1,7 @@
 (() => {
   'use strict';
 
-  const API_BASE = (window.MEDIAHUB_API_BASE || 'http://127.0.0.1:8000').replace(/\/$/, '');
   const auth = window.MediaHubAuth;
-  // Reuse the shared UC01 session. This module does not authenticate independently.
   const getToken = () => auth?.getSession()?.access_token || null;
   const clearToken = () => auth?.endSession();
 
@@ -18,26 +16,9 @@
 
 
   async function request(path, { method = 'GET', body, auth = true } = {}) {
-    const headers = { Accept: 'application/json' };
-    const token = auth ? getToken() : null;
-    if (body !== undefined) headers['Content-Type'] = 'application/json';
-    if (token) headers.Authorization = `Bearer ${token}`;
-
-    let response;
     try {
-      response = await fetch(`${API_BASE}${path}`, {
-        method,
-        headers,
-        body: body === undefined ? undefined : JSON.stringify(body),
-      });
-    } catch {
-      throw new ApiError(0, null);
-    }
-
-    let data = null;
-    try { data = await response.json(); } catch { data = null; }
-    if (!response.ok) throw new ApiError(response.status, data?.detail ?? null);
-    return data;
+      return await window.MediaHubAuth.request(path, { method, ...(body === undefined ? {} : { body: JSON.stringify(body) }) }, auth);
+    } catch (error) { throw new ApiError(error.status || 0, error.message); }
   }
 
 

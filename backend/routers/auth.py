@@ -1,6 +1,9 @@
 import re
 import unicodedata
 from uuid import uuid4
+from pathlib import Path
+
+from fastapi import UploadFile, File
 
 import bcrypt
 from fastapi import APIRouter, Depends, HTTPException
@@ -12,8 +15,8 @@ from database import get_db
 from models import Role, User
 from schemas import AuthUserResponse, Token, UserLogin, UserRegister
 from security import (
-    ACCESS_TOKEN_EXPIRE_MINUTES,
     create_access_token,
+    get_access_token_expire_minutes,
     get_current_user,
 )
 
@@ -29,6 +32,7 @@ def user_response(user: User, role: Role):
         "email": user.email,
         "role_id": user.role_id,
         "role_name": role.role_name,
+        "avatar_url": user.avatar_url,
     }
 
 
@@ -85,12 +89,13 @@ def register(user_data: UserRegister, db: Session = Depends(get_db)):
 def login(user_data: UserLogin, db: Session = Depends(get_db)):
     identity = user_data.username_or_email.strip()
     password = user_data.password.encode("utf-8")
-    user = db.query(User).filter(
+    result = db.query(User, Role).outerjoin(Role, Role.id == User.role_id).filter(
         or_(
             User.username == identity,
             func.lower(User.email) == identity.lower(),
         )
     ).first()
+    user, role = result if result else (None, None)
 
     if not user or len(password) > 72 or not bcrypt.checkpw(
         password, user.password_hash.encode("utf-8")
@@ -99,14 +104,14 @@ def login(user_data: UserLogin, db: Session = Depends(get_db)):
     if not user.status:
         raise HTTPException(403, "Tài khoản đã bị khóa.")
 
-    role = db.query(Role).filter(Role.id == user.role_id).first()
     if not role:
         raise HTTPException(403, "Tài khoản chưa được gán vai trò.")
 
+    session_minutes = get_access_token_expire_minutes(db)
     return {
-        "access_token": create_access_token(user.id),
+        "access_token": create_access_token(user.id, session_minutes),
         "token_type": "bearer",
-        "expires_in": ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        "expires_in": session_minutes * 60,
         "user": user_response(user, role),
     }
 
@@ -116,6 +121,47 @@ def get_my_account(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    role = db.query(Role).filter(Role.id == current_user.role_id).first()
+    if not role:
+        raise HTTPException(403, "Tài khoản chưa được gán vai trò.")
+    return user_response(current_user, role)
+
+
+@router.put("/me/avatar", response_model=AuthUserResponse)
+async def update_my_avatar(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    allowed = {"image/jpeg": ".jpg", "image/png": ".png", "image/webp": ".webp"}
+    extension = allowed.get(file.content_type or "")
+    if not extension:
+        raise HTTPException(415, "Chỉ hỗ trợ ảnh JPEG, PNG hoặc WEBP.")
+    payload = await file.read(5 * 1024 * 1024 + 1)
+    if not payload or len(payload) > 5 * 1024 * 1024:
+        raise HTTPException(413, "Ảnh đại diện phải nhỏ hơn 5 MB.")
+    signatures = {"image/jpeg": payload.startswith(b"\xff\xd8\xff"), "image/png": payload.startswith(b"\x89PNG\r\n\x1a\n"), "image/webp": payload.startswith(b"RIFF") and payload[8:12] == b"WEBP"}
+    if not signatures[file.content_type]:
+        raise HTTPException(415, "Định dạng ảnh không hợp lệ.")
+    upload_dir = Path(__file__).resolve().parents[1] / "uploads" / "avatars"
+    upload_dir.mkdir(parents=True, exist_ok=True)
+    filename = f"{uuid4().hex}{extension}"
+    avatar_file = upload_dir / filename
+    avatar_file.write_bytes(payload)
+    previous = current_user.avatar_url
+    current_user.avatar_url = f"/uploads/avatars/{filename}"
+    try:
+        db.commit()
+    except Exception:
+        db.rollback()
+        avatar_file.unlink(missing_ok=True)
+        raise
+    db.refresh(current_user)
+    if previous and previous.startswith("/uploads/avatars/"):
+        old_name = Path(previous).name
+        old_file = upload_dir / old_name
+        if old_file.is_file():
+            old_file.unlink()
     role = db.query(Role).filter(Role.id == current_user.role_id).first()
     if not role:
         raise HTTPException(403, "Tài khoản chưa được gán vai trò.")

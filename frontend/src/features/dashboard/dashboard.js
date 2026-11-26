@@ -27,6 +27,3 @@ const sidebar = document.getElementById('sidebar');
     document.getElementById('create-post').addEventListener('click', () => {
       window.location.href = './composer.html';
     });
-    document.querySelectorAll('[data-section]').forEach((button) => {
-      button.addEventListener('click', () => showToast(`${button.dataset.section} sẽ sớm được bổ sung.`));
-    });
