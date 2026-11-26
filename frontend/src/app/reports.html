@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#151e1a">
+  <title>Báo cáo phân tích · MediaHub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/style.css">
+  <link rel="stylesheet" href="../features/composer/composer.css">
+  <link rel="stylesheet" href="../features/reports/reports.css">
+  <script src="../features/auth/services/auth-storage.js" defer></script>
+  <script src="../features/reports/reports.js" defer></script>
+</head>
+<body class="composer-app reports-app">
+  <svg class="icon-definitions" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="icon-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></symbol>
+    <symbol id="icon-channel" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M7 8h10M7 12h6M7 16h8"/></symbol>
+    <symbol id="icon-content" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 7h6M9 11h6M9 15h4"/></symbol>
+    <symbol id="icon-calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18"/></symbol>
+    <symbol id="icon-task" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="m8 12 3 3 5-6"/></symbol>
+    <symbol id="icon-approve" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></symbol>
+    <symbol id="icon-chart" viewBox="0 0 24 24"><path d="M4 20v-7M10 20V8M16 20V4M22 20V10"/></symbol>
+    <symbol id="icon-users" viewBox="0 0 24 24"><circle cx="9" cy="7" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3M16 4a3 3 0 0 1 0 6M21 21v-3a6 6 0 0 0-4-5"/></symbol>
+    <symbol id="icon-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/></symbol>
+    <symbol id="icon-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/></symbol>
+    <symbol id="icon-bell" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></symbol>
+    <symbol id="icon-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="icon-chevron" viewBox="0 0 24 24"><path d="m8 10 4 4 4-4"/></symbol>
+    <symbol id="icon-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+    <symbol id="icon-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+    <symbol id="icon-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14-4L4 9M4 4v5h5M4 13a8 8 0 0 0 14 4l2-2M20 20v-5h-5"/></symbol>
+  </svg>
+  <div class="workspace">
+    <button class="sidebar-overlay" id="sidebar-overlay" aria-label="Đóng thanh điều hướng" hidden></button>
+    <aside class="sidebar" id="sidebar" aria-label="Không gian làm việc">
+      <a class="brand" href="./composer.html"><span class="brand-mark">m.</span><span>mediahub</span></a>
+      <p class="nav-label">Workspace</p>
+      <nav class="navigation" aria-label="Điều hướng chính">
+        <button class="nav-item" type="button" data-section="Tổng quan"><svg class="icon"><use href="#icon-grid"/></svg><span>Tổng quan</span></button>
+        <button class="nav-item" type="button" data-section="Kênh truyền thông"><svg class="icon"><use href="#icon-channel"/></svg><span>Kênh truyền thông</span></button>
+        <a class="nav-item" href="./composer.html"><svg class="icon"><use href="#icon-content"/></svg><span>Thư viện nội dung</span></a>
+        <a class="nav-item" href="./approvals.html"><svg class="icon"><use href="#icon-approve"/></svg><span>Duyệt nội dung</span></a>
+        <button class="nav-item" type="button" data-section="Lịch xuất bản"><svg class="icon"><use href="#icon-calendar"/></svg><span>Lịch xuất bản</span></button>
+        <a class="nav-item" href="./tasks.html"><svg class="icon"><use href="#icon-task"/></svg><span>Công việc</span></a>
+        <a class="nav-item is-active" href="./reports.html" aria-current="page"><svg class="icon"><use href="#icon-chart"/></svg><span>Báo cáo phân tích</span></a>
+        <a class="nav-item" href="./user_management.html"><svg class="icon"><use href="#icon-users"/></svg><span>Người dùng</span></a>
+        <a class="nav-item" href="./settings.html"><svg class="icon"><use href="#icon-settings"/></svg><span>Cấu hình hệ thống</span></a>
+      </nav>
+      <div class="sidebar-bottom">
+        <button class="account-button" type="button" id="account-button"><span class="avatar avatar-account" id="user-initial">?</span><span id="user-name">Chưa đăng nhập</span><svg class="icon"><use href="#icon-chevron"/></svg></button>
+        <button class="nav-item" type="button" id="logout-button"><span>Đăng xuất</span></button>
+      </div>
+    </aside>
+    <div class="workspace-main">
+      <header class="topbar">
+        <button type="button" class="icon-button mobile-menu" id="mobile-menu" aria-label="Mở thanh điều hướng" aria-expanded="false" aria-controls="sidebar"><svg class="icon"><use href="#icon-menu"/></svg></button>
+        <div class="breadcrumb"><span>MediaHub</span><span class="breadcrumb-divider">/</span><span>Báo cáo phân tích</span></div>
+        <div class="topbar-actions">
+          <button type="button" class="icon-button notification-button" aria-label="Thông báo"><svg class="icon"><use href="#icon-bell"/></svg></button>
+          <button type="button" class="profile-button"><span class="avatar profile-avatar" id="profile-initials">?</span><span id="profile-role">Tài khoản</span></button>
+        </div>
+      </header>
+      <main class="page-content composer-page reports-page" id="main-content">
+        <section class="page-heading composer-heading" aria-labelledby="page-title">
+          <div><p class="eyebrow">Insights</p><h1 id="page-title">Dữ liệu kể một câu chuyện.</h1><p class="page-description">Phân tích hiệu quả nội dung và nhận diện cơ hội tăng trưởng.</p></div>
+          <div class="heading-actions export-menu">
+            <button type="button" class="button button-primary" id="export-toggle" aria-haspopup="true" aria-expanded="false">Xuất báo cáo <span aria-hidden="true">↗</span></button>
+            <div class="export-options" id="export-options" hidden><button type="button" id="export-pdf">Xuất PDF</button><button type="button" id="export-excel">Xuất Excel</button></div>
+          </div>
+        </section>
+        <div class="report-alert" id="report-alert" role="alert" hidden></div>
+        <section class="report-filters" aria-label="Bộ lọc báo cáo">
+          <div class="report-field"><label class="field-label" for="date-from">Từ ngày</label><input class="composer-input report-input" type="date" id="date-from"></div>
+          <div class="report-field"><label class="field-label" for="date-to">Đến ngày</label><input class="composer-input report-input" type="date" id="date-to"></div>
+          <div class="report-field"><label class="field-label" for="report-status">Trạng thái</label><select class="composer-input report-input" id="report-status"><option value="">Tất cả</option><option value="draft">Nháp</option><option value="pending">Chờ duyệt</option><option value="approved">Đã duyệt</option><option value="rejected">Từ chối</option><option value="published">Đã đăng</option></select></div>
+          <div class="report-field"><label class="field-label" for="campaign-tag">Chiến dịch</label><input class="composer-input report-input" type="text" id="campaign-tag" maxlength="100" placeholder="Tên chiến dịch"></div>
+          <button type="button" class="button button-secondary" id="apply-report-filters">Áp dụng</button>
+        </section>
+        <div class="insight-grid">
+          <section class="insight-card insight-reach" aria-labelledby="reach-title">
+            <p class="insight-label" id="reach-title">Tổng tiếp cận</p>
+            <p class="insight-total" id="reach-total">0</p>
+            <div class="insight-meta"><span class="insight-pill" id="reach-rate">0%</span><span id="reach-note">Tỉ lệ tương tác trên lượt xem</span></div>
+            <div class="insight-bars" id="reach-bars" aria-hidden="true"></div>
+          </section>
+          <section class="insight-card insight-light" aria-labelledby="split-title">
+            <p class="insight-label" id="split-title">Phân bổ theo kênh</p>
+            <div class="split-list" id="split-list"></div>
+          </section>
+        </div>
+        <section class="insight-card insight-light insight-top" aria-labelledby="top-title">
+          <p class="insight-label" id="top-title">Bài đăng hiệu quả nhất</p>
+          <ol class="top-list" id="top-list"></ol>
+          <p class="report-empty" id="report-empty" hidden>Không có dữ liệu phù hợp bộ lọc hiện tại.</p>
+        </section>
+      </main>
+    </div>
+  </div>
+</body>
+</html>
