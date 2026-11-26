@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 
 from database import get_db
-from models import Post, PostStatusHistory, User
+from models import Post, PostStatusHistory, Role, User
 from activity_logger import record_activity
 from status_history import record_post_status_change
 from schemas import PostCreate, PostUpdate, PostStatusUpdate, PostResponse
@@ -15,12 +15,21 @@ router = APIRouter(
 )
 
 
+def can_manage_all_posts(db: Session, user: User):
+    role = db.query(Role).filter(Role.id == user.role_id).first()
+    return bool(role and role.role_name.lower() in {"admin", "manager"})
+
+
 @router.get("/", response_model=list[PostResponse])
 def get_posts(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    mine: bool = False,
 ):
-    return db.query(Post).order_by(Post.id.desc()).all()
+    query = db.query(Post)
+    if mine or not can_manage_all_posts(db, current_user):
+        query = query.filter(Post.created_by == current_user.id)
+    return query.order_by(Post.id.desc()).all()
 
 
 @router.get("/{post_id}", response_model=PostResponse)
@@ -33,6 +42,8 @@ def get_post(
 
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
+    if post.created_by != current_user.id and not can_manage_all_posts(db, current_user):
+        raise HTTPException(status_code=403, detail="Permission denied")
 
     return post
 
@@ -48,6 +59,7 @@ def create_post(
         title=post_data.title,
         content=post_data.content,
         campaign_tag=post_data.campaign_tag,
+        composer_data=post_data.composer_data,
         status="draft",
         created_by=current_user.id
     )
@@ -92,7 +104,7 @@ def update_post(
 def delete_post(
     post_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_roles("Admin", "Manager"))
+    current_user: User = Depends(get_current_user)
 ):
     post = db.query(Post).filter(Post.id == post_id).first()
 
@@ -101,6 +113,8 @@ def delete_post(
 
     if db.query(PostStatusHistory.id).filter(PostStatusHistory.post_id == post.id).first():
         raise HTTPException(status_code=409, detail="Bài đăng có lịch sử theo dõi và không thể xóa. Hãy hủy lịch đăng nếu cần.")
+    if post.created_by != current_user.id and not can_manage_all_posts(db, current_user):
+        raise HTTPException(status_code=403, detail="Permission denied")
 
     db.delete(post)
     db.commit()
