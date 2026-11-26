@@ -121,7 +121,7 @@
       setLoading(submitBtn, true);
       try {
         await auth.login(email, password.value);
-        showSuccessDialog('Đăng nhập thành công!', 'Đang chuyển tới Composer...', '../app/composer.html');
+        showSuccessDialog('Đăng nhập thành công!', 'Đang chuyển tới trang tổng quan...', '../app/index.html');
       } catch (error) {
         loginError.textContent = error.status === 401
           ? 'Email hoặc mật khẩu không chính xác.'

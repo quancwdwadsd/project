@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#151e1a">
+  <title>Tổng quan · MediaHub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/style.css">
+  <link rel="stylesheet" href="../features/composer/composer.css">
+  <link rel="stylesheet" href="../features/dashboard/dashboard.css">
+  <script src="../features/auth/services/auth-storage.js" defer></script>
+  <script src="../features/auth/identity.js" defer></script>
+  <script src="../features/dashboard/services/dashboard-api.js" defer></script>
+  <script src="../features/dashboard/dashboard.js" defer></script>
+</head>
+<body class="composer-app dashboard-app">
+  <svg class="icon-definitions" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="icon-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></symbol>
+    <symbol id="icon-channel" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M7 8h10M7 12h6M7 16h8"/></symbol>
+    <symbol id="icon-content" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 7h6M9 11h6M9 15h4"/></symbol>
+    <symbol id="icon-calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18"/></symbol>
+    <symbol id="icon-task" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="m8 12 3 3 5-6"/></symbol>
+    <symbol id="icon-approve" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></symbol>
+    <symbol id="icon-chart" viewBox="0 0 24 24"><path d="M4 20v-7M10 20V8M16 20V4M22 20V10"/></symbol>
+    <symbol id="icon-users" viewBox="0 0 24 24"><circle cx="9" cy="7" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3M16 4a3 3 0 0 1 0 6M21 21v-3a6 6 0 0 0-4-5"/></symbol>
+    <symbol id="icon-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></symbol>
+    <symbol id="icon-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/></symbol>
+    <symbol id="icon-bell" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></symbol>
+    <symbol id="icon-chevron" viewBox="0 0 24 24"><path d="m8 10 4 4 4-4"/></symbol>
+    <symbol id="icon-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+    <symbol id="icon-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14-4L4 9M4 4v5h5M4 13a8 8 0 0 0 14 4l2-2M20 20v-5h-5"/></symbol>
+    <symbol id="icon-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  </svg>
+  <div class="workspace">
+    <button class="sidebar-overlay" id="sidebar-overlay" aria-label="Đóng thanh điều hướng" hidden></button>
+    <aside class="sidebar" id="sidebar" aria-label="Không gian làm việc">
+      <a class="brand" href="./index.html" aria-label="MediaHub — Tổng quan"><span class="brand-mark">m.</span><span>mediahub</span></a>
+      <p class="nav-label">Workspace</p>
+      <nav class="navigation" aria-label="Điều hướng chính">
+        <a class="nav-item is-active" href="./index.html" aria-current="page"><svg class="icon"><use href="#icon-grid"/></svg><span>Tổng quan</span></a>
+        <a class="nav-item" href="#channels"><svg class="icon"><use href="#icon-channel"/></svg><span>Kênh truyền thông</span></a>
+        <a class="nav-item" href="./composer.html"><svg class="icon"><use href="#icon-content"/></svg><span>Thư viện nội dung</span></a>
+        <a class="nav-item" href="./approvals.html"><svg class="icon"><use href="#icon-approve"/></svg><span>Duyệt nội dung</span></a>
+        <a class="nav-item" href="#schedule"><svg class="icon"><use href="#icon-calendar"/></svg><span>Lịch xuất bản</span></a>
+        <a class="nav-item" href="#tasks"><svg class="icon"><use href="#icon-task"/></svg><span>Công việc</span></a>
+        <a class="nav-item" href="#performance"><svg class="icon"><use href="#icon-chart"/></svg><span>Báo cáo phân tích</span></a>
+        <a class="nav-item" href="./user_management.html"><svg class="icon"><use href="#icon-users"/></svg><span>Thành viên</span></a>
+        <a class="nav-item" href="./settings.html"><svg class="icon"><use href="#icon-settings"/></svg><span>Cấu hình hệ thống</span></a>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="upgrade-card"><p class="upgrade-title"><span aria-hidden="true">✦</span> MediaHub Studio</p><p>Một nơi để lên ý tưởng,<br>kết nối và xuất bản.</p><a href="./composer.html">Bắt đầu sáng tạo ↗</a></div>
+        <button class="account-button" type="button" id="account-button"><span class="avatar avatar-account" id="user-initial" aria-hidden="true">?</span><span id="user-name">Đang tải...</span><svg class="icon"><use href="#icon-chevron"/></svg></button>
+        <button class="logout-button" type="button" id="logout-button" hidden>Đăng xuất</button>
+      </div>
+    </aside>
+    <div class="workspace-main">
+      <header class="topbar">
+        <button type="button" class="icon-button mobile-menu" id="mobile-menu" aria-label="Mở thanh điều hướng" aria-expanded="false" aria-controls="sidebar"><svg class="icon"><use href="#icon-menu"/></svg></button>
+        <div class="breadcrumb"><span>MediaHub</span><span class="breadcrumb-divider">/</span><span>Tổng quan</span></div>
+        <div class="topbar-actions">
+          <div class="profile-button" aria-label="Tài khoản"><span class="avatar profile-avatar" id="profile-initials">?</span><span id="profile-role">Workspace</span></div>
+        </div>
+      </header>
+      <main class="page-content composer-page dashboard-page" id="main-content">
+        <section class="page-heading composer-heading dashboard-heading" aria-labelledby="page-title">
+          <div><p class="eyebrow">Tổng quan</p><h1 id="page-title">Tập trung vào điều quan trọng.</h1><p class="page-description">Bức tranh tổng thể về hoạt động truyền thông của bạn.</p></div>
+          <div class="heading-actions"><button type="button" class="button button-secondary" id="refresh-button"><svg class="icon"><use href="#icon-refresh"/></svg>Làm mới</button><a class="button button-primary" href="./composer.html"><svg class="icon"><use href="#icon-plus"/></svg>Tạo bài đăng</a></div>
+        </section>
+        <div class="dashboard-error" id="dashboard-error" role="alert" hidden><p id="dashboard-error-text"></p><button type="button" class="button button-secondary" id="retry-button">Thử lại</button></div>
+        <div class="dashboard-loading" id="dashboard-loading" role="status" aria-label="Đang tải dữ liệu tổng quan"><div class="skeleton"></div><div class="skeleton skeleton-small"></div></div>
+        <div id="dashboard-content" hidden>
+          <div class="dashboard-hero-grid">
+            <section class="engagement-card" id="performance" aria-labelledby="engagement-title">
+              <div class="engagement-copy"><p class="eyebrow">Hiệu suất 30 ngày qua</p><h2 id="engagement-title">Tương tác của bạn</h2><p class="engagement-value" id="metric-engagement">—</p><p class="metric-change is-neutral" id="engagement-change">Đang tải số liệu</p></div>
+              <div class="chart-wrap"><div class="engagement-chart" id="engagement-chart" role="img" aria-label="Biểu đồ tương tác theo tuần"></div><p class="chart-empty" id="chart-empty" hidden>Chưa có dữ liệu tương tác trong 30 ngày qua.</p></div>
+            </section>
+            <section class="schedule-card" id="schedule" aria-labelledby="schedule-heading">
+              <div id="schedule-card" hidden><p class="eyebrow">Sắp diễn ra</p><h2 id="schedule-heading">Bài đăng tiếp theo</h2><p class="schedule-time"><span id="schedule-time">—</span><span aria-hidden="true">·</span><span id="schedule-date">—</span></p><hr class="schedule-rule"><p class="schedule-post" id="schedule-title"></p><p class="schedule-channel" id="schedule-channel"></p><a class="schedule-link" href="./approvals.html"><span>Xem nội dung</span><span aria-hidden="true">↗</span></a></div>
+              <div class="schedule-empty" id="schedule-empty"><p class="eyebrow">Tiếp theo trong lịch</p><h2 id="schedule-heading-empty">Sẵn sàng lên lịch?</h2><p>Chưa có bài viết nào được lên lịch. Hãy chuẩn bị nội dung tiếp theo.</p><a href="./composer.html">Tạo nội dung mới ↗</a></div>
+            </section>
+          </div>
+          <section class="dashboard-metrics" aria-label="Các chỉ số chính">
+            <article class="summary-card"><p class="eyebrow">Bài đăng đã xuất bản</p><strong class="summary-value" id="metric-published">—</strong><span class="summary-note">Trong 30 ngày qua</span></article>
+            <article class="summary-card" id="channels"><p class="eyebrow">Kênh đang kết nối</p><strong class="summary-value" id="metric-channels">—</strong><span class="summary-note">Đang hoạt động</span></article>
+            <article class="summary-card"><p class="eyebrow">Lượt tiếp cận</p><strong class="summary-value" id="metric-reach">—</strong><span class="summary-note">Theo dữ liệu đã đồng bộ</span></article>
+            <article class="summary-card" id="tasks"><p class="eyebrow">Việc hoàn thành</p><strong class="summary-value" id="metric-tasks">—</strong><span class="summary-note" id="metric-tasks-note">—</span></article>
+          </section>
+          <div class="dashboard-bottom-grid">
+            <section class="activity-card" aria-labelledby="activity-heading"><div class="section-heading"><p class="eyebrow" id="activity-heading">Nội dung gần đây</p><a href="./approvals.html">Mở thư viện ↗</a></div><ul class="activity-list" id="activity-list"></ul><p class="activity-empty" id="activity-empty" hidden>Chưa có bài viết nào. Bắt đầu với một ý tưởng mới nhé.</p></section>
+            <section class="quick-links-card" aria-labelledby="quick-links-heading"><div class="section-heading"><p class="eyebrow" id="quick-links-heading">Lối tắt</p></div><nav class="quick-links" aria-label="Lối tắt"><a class="quick-link" href="./composer.html"><span>Soạn bài viết mới</span><span aria-hidden="true">↗</span></a><a class="quick-link" href="./approvals.html"><span>Duyệt nội dung</span><span aria-hidden="true">↗</span></a><a class="quick-link" href="./user_management.html"><span>Quản lý thành viên</span><span aria-hidden="true">↗</span></a></nav></section>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+</body>
+</html>
