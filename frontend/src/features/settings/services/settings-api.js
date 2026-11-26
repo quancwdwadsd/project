@@ -3,8 +3,12 @@
 
   // Địa chỉ backend. Đổi bằng cách khai báo window.MEDIAHUB_API_BASE trước khi nạp file này.
   const API_BASE = (window.MEDIAHUB_API_BASE || 'http://127.0.0.1:8000').replace(/\/$/, '');
-  // Trang đăng nhập (UC01) của nhóm cũng nên lưu token vào đúng khóa này.
-  const TOKEN_KEY = 'mediahub.token';
+  // Read the existing session from UC01's shared auth module.
+  const auth = window.MediaHubAuth;
+
+  // Reuse the session created by UC01 (login/register). No local login/token store here.
+  const getToken = () => auth?.getSession()?.access_token || null;
+  const clearToken = () => auth?.endSession();
 
   class ApiError extends Error {
     constructor(status, detail) {
@@ -14,15 +18,7 @@
     }
   }
 
-  const getToken = () => {
-    try { return localStorage.getItem(TOKEN_KEY); } catch { return null; }
-  };
-  const setToken = (token) => {
-    try { localStorage.setItem(TOKEN_KEY, token); } catch { /* trình duyệt chặn lưu: chỉ dùng được trong lần mở này */ }
-  };
-  const clearToken = () => {
-    try { localStorage.removeItem(TOKEN_KEY); } catch { /* bỏ qua */ }
-  };
+
 
   async function request(path, { method = 'GET', body, auth = true } = {}) {
     const headers = { Accept: 'application/json' };
@@ -41,13 +37,9 @@
     return data;
   }
 
-  async function login(usernameOrEmail, password) {
-    const data = await request('/auth/login', { method: 'POST', auth: false, body: { username_or_email: usernameOrEmail, password } });
-    setToken(data.access_token);
-  }
 
   window.MediaHubApi = Object.freeze({
-    ApiError, getToken, clearToken, login,
+    ApiError, getToken, clearToken,
     me: () => request('/settings/me'),
     getSettings: () => request('/settings/'),
     getHistory: () => request('/settings/history'),

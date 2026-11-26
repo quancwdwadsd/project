@@ -10,6 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../styles/style.css">
   <link rel="stylesheet" href="../features/settings/settings.css">
+  <script src="../features/auth/services/auth-storage.js" defer></script>
   <script src="../features/settings/services/settings-storage.js" defer></script>
   <script src="../features/settings/services/settings-api.js" defer></script>
   <script src="../features/settings/settings.js" defer></script>
@@ -47,7 +48,8 @@
         <a class="nav-item" href="./approvals.html"><svg class="icon"><use href="#icon-approve"/></svg><span>Duyệt nội dung</span></a>
         <button class="nav-item" type="button" data-section="Lịch xuất bản"><svg class="icon"><use href="#icon-calendar"/></svg><span>Lịch xuất bản</span></button>
         <button class="nav-item" type="button" data-section="Công việc"><svg class="icon"><use href="#icon-task"/></svg><span>Công việc</span></button>
-        <a class="nav-item" href="./reports.html"><svg class="icon"><use href="#icon-chart"/></svg><span>Báo cáo phân tích</span></a>        <a class="nav-item" href="./user_management.html"><svg class="icon"><use href="#icon-users"/></svg><span>Người dùng</span></a>
+        <a class="nav-item" href="./reports.html"><svg class="icon"><use href="#icon-chart"/></svg><span>Báo cáo phân tích</span></a>
+        <a class="nav-item" href="./user_management.html"><svg class="icon"><use href="#icon-users"/></svg><span>Người dùng</span></a>
         <button class="nav-item is-active" type="button" id="nav-settings" aria-current="page"><svg class="icon"><use href="#icon-settings"/></svg><span>Cấu hình hệ thống</span></button>      
       </nav>
       <div class="sidebar-bottom">
@@ -85,15 +87,7 @@
           <button type="button" class="button button-secondary" id="retry-load">Thử lại</button>
         </div>
 
-        <section class="settings-card login-card" id="login-panel" aria-labelledby="login-title" hidden>
-          <div class="card-header"><h2 class="card-title" id="login-title">Đăng nhập để cấu hình hệ thống</h2><p class="card-description" id="login-note">Dùng tài khoản Quản trị viên của hệ thống.</p></div>
-          <form id="login-form" novalidate>
-            <p class="form-error" id="login-error" role="alert" hidden></p>
-            <div class="setting-field"><label for="login-username">Tên đăng nhập hoặc email</label><input id="login-username" name="username" type="text" autocomplete="username"></div>
-            <div class="setting-field"><label for="login-password">Mật khẩu</label><input id="login-password" name="password" type="password" autocomplete="current-password"></div>
-            <div class="dialog-footer"><button type="submit" class="button button-primary" id="login-submit">Đăng nhập</button></div>
-          </form>
-        </section>
+
 
         <form id="settings-form" novalidate hidden>
           <p class="form-error" id="form-error" role="alert" hidden></p>

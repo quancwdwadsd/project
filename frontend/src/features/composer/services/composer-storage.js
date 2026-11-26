@@ -2,11 +2,13 @@
   'use strict';
 
   const DRAFTS_KEY = 'mediahub.composer.drafts.v1';
+  const MIGRATION_KEY_PREFIX = 'mediahub.composer.migrated.v1.';
   const DATABASE_NAME = 'mediahub.composer.library.v1';
   const DATABASE_VERSION = 1;
   const MEDIA_STORE = 'media';
   const MAX_FILE_MB = 100;
   const MAX_MEDIA_PER_POST = 10;
+  let legacyMigrationPromise;
   const extensionMimeTypes = Object.freeze({
     jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp',
     mp4: 'video/mp4', webm: 'video/webm', mov: 'video/quicktime',
@@ -25,7 +27,7 @@
     return `${prefix}-${globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`}`;
   }
 
-  function readDrafts() {
+  function readLegacyDrafts() {
     try {
       const raw = localStorage.getItem(DRAFTS_KEY);
       if (!raw) return { drafts: [], warning: null };
@@ -39,55 +41,111 @@
     }
   }
 
-  function loadDrafts(query = '') {
-    const loaded = readDrafts();
-    const normalizedQuery = normalize(query.trim());
-    const drafts = loaded.drafts
-      .filter((draft) => !normalizedQuery || normalize([
-        draft.title,
-        draft.contentText,
-        draft.campaignTag,
-        ...(Array.isArray(draft.campaignTags) ? draft.campaignTags : []),
-        ...(Array.isArray(draft.channels) ? draft.channels : []),
-      ].join(' ')).includes(normalizedQuery))
-      .sort((a, b) => (Date.parse(b.updatedAt) || 0) - (Date.parse(a.updatedAt) || 0));
-    return { drafts, warning: loaded.warning };
-  }
-
-  function getDraft(id) {
-    return readDrafts().drafts.find((draft) => draft.id === id) ?? null;
-  }
-
-  function saveDraft(draft) {
-    const loaded = readDrafts();
-    const drafts = loaded.drafts;
-    const now = new Date().toISOString();
-    const existingIndex = drafts.findIndex((item) => item.id === draft.id);
-    const nextDraft = {
-      ...draft,
-      id: draft.id || makeId('draft'),
-      createdAt: existingIndex >= 0 ? drafts[existingIndex].createdAt : now,
-      updatedAt: now,
+  function toPostPayload(draft) {
+    const tags = Array.isArray(draft.campaignTags)
+      ? draft.campaignTags
+      : String(draft.campaignTag ?? '').split(',').map((tag) => tag.trim()).filter(Boolean);
+    const composerData = {
+      title: draft.title ?? '',
+      contentText: draft.contentText ?? '',
+      campaignTags: tags,
+      channels: Array.isArray(draft.channels) ? draft.channels : [],
+      mediaIds: Array.isArray(draft.mediaIds) ? draft.mediaIds : [],
+      createdAt: draft.createdAt ?? null,
     };
-    if (existingIndex >= 0) drafts[existingIndex] = nextDraft;
-    else drafts.push(nextDraft);
-
-    try {
-      localStorage.setItem(DRAFTS_KEY, JSON.stringify(drafts));
-      return { draft: nextDraft, saved: true };
-    } catch {
-      return { draft: nextDraft, saved: false };
-    }
+    return {
+      title: String(draft.title || '').trim() || 'Bản nháp chưa có tiêu đề',
+      content: draft.contentHtml ?? '',
+      campaign_tag: tags.join(', ').slice(0, 100) || null,
+      composer_data: composerData,
+    };
   }
 
-  function deleteDraft(id) {
-    const drafts = readDrafts().drafts.filter((draft) => draft.id !== id);
-    try {
-      localStorage.setItem(DRAFTS_KEY, JSON.stringify(drafts));
-      return true;
-    } catch {
-      return false;
+  function fromPost(post) {
+    const data = post.composer_data ?? {};
+    const tags = Array.isArray(data.campaignTags)
+      ? data.campaignTags
+      : String(post.campaign_tag ?? '').split(',').map((tag) => tag.trim()).filter(Boolean);
+    return {
+      id: String(post.id),
+      title: data.title ?? post.title,
+      contentHtml: post.content ?? '',
+      contentText: data.contentText ?? '',
+      campaignTag: tags.join(', '),
+      campaignTags: tags,
+      channels: Array.isArray(data.channels) ? data.channels : [],
+      mediaIds: Array.isArray(data.mediaIds) ? data.mediaIds : [],
+      createdAt: data.createdAt ?? post.created_at,
+      updatedAt: post.updated_at,
+    };
+  }
+
+  async function apiRequest(path, options = {}) {
+    const auth = window.MediaHubAuth;
+    if (!auth?.getSession()) {
+      throw Object.assign(new Error('Phiên đăng nhập đã hết hạn.'), { status: 401 });
     }
+    return auth.request(path, options, true);
+  }
+
+  function migrateLegacyDrafts() {
+    if (legacyMigrationPromise) return legacyMigrationPromise;
+    legacyMigrationPromise = (async () => {
+      const userId = window.MediaHubAuth.getSession().user.id;
+      const migrationKey = `${MIGRATION_KEY_PREFIX}${userId}`;
+      if (localStorage.getItem(migrationKey)) return;
+
+      const loaded = readLegacyDrafts();
+      if (loaded.warning) throw new Error(loaded.warning);
+      for (const draft of loaded.drafts) {
+        const draftKey = `${migrationKey}.${encodeURIComponent(draft.id)}`;
+        if (localStorage.getItem(draftKey)) continue;
+        const response = await apiRequest('/posts/', {
+          method: 'POST',
+          body: JSON.stringify(toPostPayload(draft)),
+        });
+        localStorage.setItem(draftKey, String(response.id));
+      }
+      localStorage.setItem(migrationKey, 'done');
+    })().catch((error) => {
+      legacyMigrationPromise = null;
+      throw error;
+    });
+    return legacyMigrationPromise;
+  }
+
+  async function loadDrafts(query = '') {
+    await migrateLegacyDrafts();
+    const posts = await apiRequest('/posts/?mine=true');
+    const normalizedQuery = normalize(query.trim());
+    const allDrafts = posts.map(fromPost);
+    const drafts = allDrafts.filter((draft) => !normalizedQuery || normalize([
+      draft.title,
+      draft.contentText,
+      draft.campaignTag,
+      ...draft.campaignTags,
+      ...draft.channels,
+    ].join(' ')).includes(normalizedQuery));
+    return { drafts, total: allDrafts.length, warning: null };
+  }
+
+  async function getDraft(id) {
+    const post = await apiRequest(`/posts/${encodeURIComponent(id)}`);
+    return fromPost(post);
+  }
+
+  async function saveDraft(draft) {
+    const path = draft.id ? `/posts/${encodeURIComponent(draft.id)}` : '/posts/';
+    const response = await apiRequest(path, {
+      method: draft.id ? 'PUT' : 'POST',
+      body: JSON.stringify(toPostPayload(draft)),
+    });
+    return { draft: fromPost(response), saved: true };
+  }
+
+  async function deleteDraft(id) {
+    await apiRequest(`/posts/${encodeURIComponent(id)}`, { method: 'DELETE' });
+    return true;
   }
 
   function normalize(value) {
