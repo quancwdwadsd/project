@@ -17,6 +17,7 @@ from schemas_approvals import (
     RejectRequest,
 )
 from security import get_current_user
+from status_history import record_post_status_change
 
 
 router = APIRouter(
@@ -161,6 +162,8 @@ def load_history(db: Session, post_id: int):
 
 
 def change_status(db: Session, post: Post, allowed_from, values: dict, actor: Actor, log_text: str, request: Request):
+    from_status = post.status or rules.DRAFT
+    to_status = values.get("status", from_status)
     try:
         changed = (
             db.query(Post)
@@ -174,6 +177,9 @@ def change_status(db: Session, post: Post, allowed_from, values: dict, actor: Ac
                 status_code=409,
                 detail="Trạng thái nội dung vừa được người khác thay đổi. Vui lòng tải lại danh sách."
             )
+
+        if from_status != to_status:
+            record_post_status_change(db, post.id, to_status, actor.user.id, from_status=from_status, reason=log_text)
 
         record_activity(
             db,

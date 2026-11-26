@@ -50,3 +50,8 @@ backend/.venv/Scripts/python.exe -B backend/tests/check_branch_api.py
 ```
 
 Lệnh thứ hai trả exit code 1 vì vẫn còn 12 ca không đạt. Kết quả từng request đã được cập nhật trong `docs/api-test-results.json`. Báo cáo `docs/api-test-report.md` giữ nguyên làm mốc lịch sử trước sửa.
+
+
+## Đồng bộ phiên đăng nhập UC01
+
+Frontend cấu hình hệ thống và duyệt nội dung đọc access token từ `MediaHubAuth.getSession()` (session key `mediahub.session.v1`); không dùng token key cũ `mediahub.token`, không có form đăng nhập độc lập. Logout/401 kết thúc phiên chung và chuyển về trang đăng nhập UC01.
