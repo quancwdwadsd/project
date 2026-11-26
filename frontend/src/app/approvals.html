@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="../styles/style.css">
   <link rel="stylesheet" href="../features/composer/composer.css">
   <link rel="stylesheet" href="../features/approvals/approvals.css">
+  <script src="../features/auth/services/auth-storage.js" defer></script>
   <script src="../features/approvals/services/approvals-api.js" defer></script>
   <script src="../features/approvals/approvals.js" defer></script>
 </head>
@@ -47,7 +48,7 @@
         <a class="nav-item is-active" href="./approvals.html" aria-current="page"><svg class="icon"><use href="#icon-approve"/></svg><span>Duyệt nội dung</span></a>
         <a class="nav-item" href="./post_status.html"><i class="fa-regular fa-pen-to-square" aria-hidden="true"></i><span>Quản lý bài đăng</span></a>
         <button class="nav-item" type="button" data-section="Lịch xuất bản"><svg class="icon"><use href="#icon-calendar"/></svg><span>Lịch xuất bản</span></button>
-        <button class="nav-item" type="button" data-section="Công việc"><svg class="icon"><use href="#icon-task"/></svg><span>Công việc</span></button>
+        <a class="nav-item" href="./tasks.html"><svg class="icon"><use href="#icon-task"/></svg><span>Công việc</span></a>
         <button class="nav-item" type="button" data-section="Báo cáo phân tích"><svg class="icon"><use href="#icon-chart"/></svg><span>Báo cáo phân tích</span></button>
         <a class="nav-item" href="./user_management.html"><svg class="icon"><use href="#icon-users"/></svg><span>Người dùng</span></a>
         <a class="nav-item" href="./settings.html"><svg class="icon"><use href="#icon-settings"/></svg><span>Cấu hình hệ thống</span></a>
@@ -80,17 +81,7 @@
           <button type="button" class="button button-secondary" id="banner-retry">Thử lại</button>
         </div>
 
-        <section class="composer-card approval-login" id="login-panel" aria-labelledby="login-title" hidden>
-          <div class="card-heading"><div><p class="eyebrow">Tài khoản</p><h2 class="approval-title" id="login-title">Đăng nhập để duyệt nội dung</h2></div></div>
-          <form id="login-form" novalidate>
-            <p class="form-message" id="login-error" role="alert" hidden></p>
-            <label class="field-label" for="login-username">Tên đăng nhập hoặc email</label>
-            <input class="composer-input approval-input" id="login-username" name="username" type="text" autocomplete="username">
-            <label class="field-label" for="login-password">Mật khẩu</label>
-            <input class="composer-input approval-input" id="login-password" name="password" type="password" autocomplete="current-password">
-            <div class="dialog-footer"><button type="submit" class="button button-primary" id="login-submit">Đăng nhập</button></div>
-          </form>
-        </section>
+
 
         <div id="approval-view" hidden>
           <div class="approval-tabs" id="approval-tabs" role="tablist" aria-label="Lọc theo trạng thái"></div>

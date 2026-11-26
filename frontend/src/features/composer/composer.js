@@ -18,6 +18,20 @@
   let dirty = false;
 
   const byId = (id) => document.getElementById(id);
+  const auth = window.MediaHubAuth;
+  if (!auth?.getSession()) {
+    window.location.replace('./login.html');
+    return;
+  }
+
+  function showApiError(error) {
+    if (error.status === 401) {
+      auth.endSession();
+      window.location.replace('./login.html?reason=expired');
+      return;
+    }
+    notify(error.message || 'Không thể kết nối với máy chủ.', 'error');
+  }
   const selectedChannels = () => {
     const selected = document.querySelector('input[name="channel"]:checked');
     return selected ? [selected.value] : [];
@@ -284,25 +298,37 @@
     return draft;
   }
 
-  function renderDraftCount() {
-    const count = store.loadDrafts().drafts.length;
-    byId('draft-count').textContent = String(count).padStart(2, '0');
+  async function renderDraftCount() {
+    try {
+      const { total } = await store.loadDrafts();
+      byId('draft-count').textContent = String(total).padStart(2, '0');
+    } catch (error) {
+      showApiError(error);
+    }
   }
 
-  function saveDraft() {
+  async function saveDraft() {
     const payload = validateForSave();
     if (!payload) return false;
-    const result = store.saveDraft(payload);
-    currentDraftId = result.draft.id;
-    byId('new-post-button').hidden = false;
-    byId('save-draft-bottom').textContent = 'Lưu thay đổi';
-    byId('save-state').textContent = result.saved ? 'Đã lưu bản nháp' : 'Chưa lưu được';
-    byId('save-state').classList.remove('is-dirty');
-    dirty = !result.saved;
-    renderDraftCount();
-    if (byId('drafts-dialog').open) renderDraftList(byId('draft-library-search').value);
-    notify(result.saved ? 'Đã lưu bản nháp trên trình duyệt.' : 'Trình duyệt không cho lưu dữ liệu. Hãy kiểm tra quyền lưu trữ.', result.saved ? 'success' : 'error');
-    return result.saved;
+    byId('save-draft-bottom').disabled = true;
+    try {
+      const result = await store.saveDraft(payload);
+      currentDraftId = result.draft.id;
+      byId('new-post-button').hidden = false;
+      byId('save-draft-bottom').textContent = 'Lưu thay đổi';
+      byId('save-state').textContent = 'Đã lưu bản nháp';
+      byId('save-state').classList.remove('is-dirty');
+      dirty = false;
+      renderDraftCount();
+      if (byId('drafts-dialog').open) renderDraftList(byId('draft-library-search').value).catch(showApiError);
+      notify('Đã lưu bản nháp trên máy chủ.', 'success');
+      return true;
+    } catch (error) {
+      showApiError(error);
+      return false;
+    } finally {
+      byId('save-draft-bottom').disabled = false;
+    }
   }
 
   async function renderAttachedMedia() {
@@ -466,8 +492,8 @@
     renderAttachedMedia().then(() => { isRestoring = false; });
   }
 
-  function renderDraftList(query = '') {
-    const { drafts, warning } = store.loadDrafts(query);
+  async function renderDraftList(query = '') {
+    const { drafts, total, warning } = await store.loadDrafts(query);
     const list = byId('draft-list');
     const cards = drafts.map((draft) => {
       const card = document.createElement('article');
@@ -499,7 +525,7 @@
     list.replaceChildren(...cards);
     byId('draft-empty').hidden = drafts.length > 0;
     byId('draft-empty').textContent = warning || (query ? 'Không tìm thấy bản nháp phù hợp.' : 'Chưa có bản nháp.');
-    renderDraftCount();
+    byId('draft-count').textContent = String(total).padStart(2, '0');
   }
 
   function formatDate(value) {
@@ -508,10 +534,15 @@
     return new Intl.DateTimeFormat('vi-VN', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }).format(date);
   }
 
-  function openDrafts(query = '') {
+  async function openDrafts(query = '') {
     const dialog = byId('drafts-dialog');
     byId('draft-library-search').value = query;
-    renderDraftList(query);
+    try {
+      await renderDraftList(query);
+    } catch (error) {
+      showApiError(error);
+      return;
+    }
     if (!dialog.open) dialog.showModal();
     requestAnimationFrame(() => byId('draft-library-search').focus());
   }
@@ -614,8 +645,8 @@
     byId('open-drafts').addEventListener('click', () => openDrafts());
     byId('draft-search').addEventListener('click', () => openDrafts(byId('draft-search').value));
     byId('draft-search').addEventListener('input', () => openDrafts(byId('draft-search').value));
-    byId('draft-library-search').addEventListener('input', (event) => renderDraftList(event.currentTarget.value));
-    byId('draft-list').addEventListener('click', (event) => {
+    byId('draft-library-search').addEventListener('input', (event) => renderDraftList(event.currentTarget.value).catch(showApiError));
+    byId('draft-list').addEventListener('click', async (event) => {
       const deleteButton = event.target.closest('[data-delete-draft]');
       if (deleteButton) {
         requestDraftDelete(deleteButton.dataset.deleteDraft);
@@ -623,23 +654,26 @@
       }
       const openButton = event.target.closest('[data-open-draft]');
       if (openButton) {
-        const draft = store.getDraft(openButton.dataset.openDraft);
-        if (draft) {
+        try {
+          const draft = await store.getDraft(openButton.dataset.openDraft);
+          if (!draft) return;
           setForm(draft);
           byId('drafts-dialog').close();
           byId('draft-search').value = '';
           notify('Đã mở bản nháp để chỉnh sửa.');
-        }
+        } catch (error) { showApiError(error); }
       }
     });
-    byId('confirm-delete-draft').addEventListener('click', () => {
-      const deleted = store.deleteDraft(pendingDeleteId);
-      if (currentDraftId === pendingDeleteId) newPost();
-      pendingDeleteId = null;
-      byId('delete-dialog').close();
-      renderDraftCount();
-      if (byId('drafts-dialog').open) renderDraftList(byId('draft-library-search').value);
-      notify(deleted ? 'Đã xóa bản nháp.' : 'Không thể xóa bản nháp trong trình duyệt.', deleted ? 'success' : 'error');
+    byId('confirm-delete-draft').addEventListener('click', async () => {
+      try {
+        await store.deleteDraft(pendingDeleteId);
+        if (currentDraftId === pendingDeleteId) newPost();
+        pendingDeleteId = null;
+        byId('delete-dialog').close();
+        renderDraftCount();
+        if (byId('drafts-dialog').open) renderDraftList(byId('draft-library-search').value).catch(showApiError);
+        notify('Đã xóa bản nháp.', 'success');
+      } catch (error) { showApiError(error); }
     });
     byId('new-post-button').addEventListener('click', newPost);
   }
