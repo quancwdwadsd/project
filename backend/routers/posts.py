@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from database import get_db
-from models import Post, PostStatusHistory, Role, User
+from models import Post, Role, Schedule, User
 from activity_logger import record_activity
 from status_history import record_post_status_change
 from schemas import PostCreate, PostUpdate, PostStatusUpdate, PostResponse
@@ -26,7 +27,7 @@ def get_posts(
     current_user: User = Depends(get_current_user),
     mine: bool = False,
 ):
-    query = db.query(Post)
+    query = db.query(Post).filter(Post.deleted_at.is_(None))
     if mine or not can_manage_all_posts(db, current_user):
         query = query.filter(Post.created_by == current_user.id)
     return query.order_by(Post.id.desc()).all()
@@ -38,7 +39,7 @@ def get_post(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    post = db.query(Post).filter(Post.id == post_id).first()
+    post = db.query(Post).filter(Post.id == post_id, Post.deleted_at.is_(None)).first()
 
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
@@ -81,7 +82,7 @@ def update_post(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    post = db.query(Post).filter(Post.id == post_id).first()
+    post = db.query(Post).filter(Post.id == post_id, Post.deleted_at.is_(None)).first()
 
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
@@ -106,20 +107,24 @@ def delete_post(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    post = db.query(Post).filter(Post.id == post_id).first()
+    post = db.query(Post).filter(Post.id == post_id, Post.deleted_at.is_(None)).first()
 
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
 
-    if db.query(PostStatusHistory.id).filter(PostStatusHistory.post_id == post.id).first():
-        raise HTTPException(status_code=409, detail="Bài đăng có lịch sử theo dõi và không thể xóa. Hãy hủy lịch đăng nếu cần.")
     if post.created_by != current_user.id and not can_manage_all_posts(db, current_user):
         raise HTTPException(status_code=403, detail="Permission denied")
 
-    db.delete(post)
+    if (post.status or "draft") != "draft":
+        raise HTTPException(status_code=409, detail="Chỉ có thể xóa bài nháp chưa gửi duyệt.")
+    if db.query(Schedule.id).filter(Schedule.post_id == post.id).first():
+        raise HTTPException(status_code=409, detail="Bài viết đã có lịch đăng nên không thể xóa.")
+
+    post.deleted_at = func.current_timestamp()
+    record_activity(db, current_user.id, f"Xóa bản nháp bài #{post.id}")
     db.commit()
 
-    return {"message": "Post deleted successfully"}
+    return {"message": "Draft deleted successfully"}
 
 
 @router.patch("/{post_id}/status", response_model=PostResponse)
@@ -130,7 +135,7 @@ def update_post_status(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_roles("Admin", "Manager"))
 ):
-    post = db.query(Post).filter(Post.id == post_id).first()
+    post = db.query(Post).filter(Post.id == post_id, Post.deleted_at.is_(None)).first()
 
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")

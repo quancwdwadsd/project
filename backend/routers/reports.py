@@ -31,7 +31,7 @@ def get_report(
     query = (
         db.query(PostMetric, Post)
         .join(Post, Post.id == PostMetric.post_id)
-        .filter(PostMetric.collected_at >= start_at, PostMetric.collected_at < end_exclusive)
+        .filter(Post.deleted_at.is_(None), PostMetric.collected_at >= start_at, PostMetric.collected_at < end_exclusive)
     )
     if campaign_tag:
         query = query.filter(Post.campaign_tag == campaign_tag)
@@ -125,8 +125,8 @@ def get_report(
         "top_posts": top_posts[:20],
         "filters": {
             "channels": [{"id": channel.id, "name": channel.channel_name} for channel in db.query(Channel).order_by(Channel.channel_name).all()],
-            "campaigns": [row[0] for row in db.query(Post.campaign_tag).filter(Post.campaign_tag.isnot(None), Post.campaign_tag != "").distinct().order_by(Post.campaign_tag).all()],
-            "statuses": [row[0] for row in db.query(Post.status).filter(Post.status.isnot(None)).distinct().order_by(Post.status).all()],
+            "campaigns": [row[0] for row in db.query(Post.campaign_tag).filter(Post.deleted_at.is_(None), Post.campaign_tag.isnot(None), Post.campaign_tag != "").distinct().order_by(Post.campaign_tag).all()],
+            "statuses": [row[0] for row in db.query(Post.status).filter(Post.deleted_at.is_(None), Post.status.isnot(None)).distinct().order_by(Post.status).all()],
         },
         "data_quality": {
             "sources": sources,

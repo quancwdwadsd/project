@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
@@ -18,6 +20,8 @@ from routers.settings import router as settings_router
 from routers.approvals import router as approvals_router
 from routers.post_status import router as post_status_router
 from routers.reports import router as reports_router
+
+logger = logging.getLogger(__name__)
 
 
 app = FastAPI(
@@ -58,10 +62,11 @@ def test_database(db: Session = Depends(get_db)):
             "tables": [table[0] for table in tables]
         }
 
-    except Exception as e:
+    except Exception:
+        logger.exception("Database health check failed")
         raise HTTPException(
-            status_code=500,
-            detail=str(e)
+            status_code=503,
+            detail="Không thể kết nối cơ sở dữ liệu. Kiểm tra cấu hình backend và trạng thái DB."
         )
 
 app.include_router(users_router)
@@ -79,10 +84,3 @@ app.include_router(settings_router)
 app.include_router(approvals_router)
 app.include_router(post_status_router)
 app.include_router(reports_router)
-
-@app.get("/")
-def home():
-    return {
-        "message": "Social Media Management API is running"
-    }
-    

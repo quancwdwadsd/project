@@ -111,7 +111,7 @@ def item_response(db: Session, post: Post, actor: Actor) -> dict:
 
 
 def get_visible_post(db: Session, post_id: int, actor: Actor) -> Post:
-    post = db.query(Post).filter(Post.id == post_id).first()
+    post = db.query(Post).filter(Post.id == post_id, Post.deleted_at.is_(None)).first()
 
     if not post or not (rules.is_reviewer(actor.role_name) or post.created_by == actor.user.id):
         raise HTTPException(status_code=404, detail="Không tìm thấy nội dung")
@@ -167,7 +167,7 @@ def change_status(db: Session, post: Post, allowed_from, values: dict, actor: Ac
     try:
         changed = (
             db.query(Post)
-            .filter(Post.id == post.id, Post.status.in_(list(allowed_from)))
+            .filter(Post.id == post.id, Post.deleted_at.is_(None), Post.status.in_(list(allowed_from)))
             .update(values, synchronize_session=False)
         )
 
@@ -233,6 +233,7 @@ def list_approvals(
 
     if not rules.is_reviewer(actor.role_name):
         visible.append(Post.created_by == actor.user.id)
+    visible.append(Post.deleted_at.is_(None))
 
     counts = dict.fromkeys(rules.STATUSES, 0)
 

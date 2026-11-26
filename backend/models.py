@@ -69,6 +69,7 @@ class Post(Base):
         server_default=func.current_timestamp(),
         onupdate=func.current_timestamp()
     )
+    deleted_at = Column(DateTime, nullable=True, index=True)
 
 
 class Channel(Base):
