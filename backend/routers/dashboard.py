@@ -68,7 +68,12 @@ def get_dashboard_summary(
         Schedule.scheduled_time <= now,
     ).distinct().count()
 
-    next_schedule = db.query(Schedule, Post, Channel).join(
+    next_schedule = db.query(
+        Schedule.scheduled_time,
+        Post.title,
+        Channel.channel_name,
+        Channel.channel_type,
+    ).join(
         Post, Schedule.post_id == Post.id
     ).join(
         Channel, Schedule.channel_id == Channel.id
@@ -98,10 +103,10 @@ def get_dashboard_summary(
         "weekly_engagement": weekly_engagement,
         "has_metrics": bool(current_metrics),
         "next_schedule": None if not next_schedule else {
-            "scheduled_time": next_schedule[0].scheduled_time.isoformat(),
-            "post_title": next_schedule[1].title,
-            "channel_name": next_schedule[2].channel_name,
-            "channel_type": next_schedule[2].channel_type,
+            "scheduled_time": next_schedule[0].isoformat(),
+            "post_title": next_schedule[1],
+            "channel_name": next_schedule[2],
+            "channel_type": next_schedule[3],
         },
         "recent_activity": [
             {
