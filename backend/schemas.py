@@ -69,12 +69,14 @@ class PostCreate(BaseModel):
     title: str = Field(min_length=1, max_length=200)
     content: Optional[str] = None
     campaign_tag: Optional[str] = Field(default=None, max_length=100)
+    composer_data: Optional[dict] = None
 
 
 class PostUpdate(BaseModel):
     title: Optional[str] = Field(default=None, min_length=1, max_length=200)
     content: Optional[str] = None
     campaign_tag: Optional[str] = Field(default=None, max_length=100)
+    composer_data: Optional[dict] = None
 
 
 class PostStatusUpdate(BaseModel):
@@ -87,6 +89,7 @@ class PostResponse(BaseModel):
     title: str
     content: Optional[str]
     campaign_tag: Optional[str]
+    composer_data: Optional[dict] = None
     status: str
     reject_reason: Optional[str]
     created_by: int

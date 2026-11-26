@@ -6,7 +6,8 @@ from sqlalchemy import (
     Boolean,
     DateTime,
     ForeignKey,
-    func
+    func,
+    JSON
 )
 from database import Base
 from sqlalchemy import ForeignKey, func
@@ -57,6 +58,7 @@ class Post(Base):
     title = Column(String(200), nullable=False)
     content = Column(Text)
     campaign_tag = Column(String(100))
+    composer_data = Column(JSON, nullable=True)
     status = Column(String(30), default="draft")
     reject_reason = Column(Text)
     created_by = Column(Integer, ForeignKey("users.id"), nullable=False)
