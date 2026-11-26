@@ -72,3 +72,21 @@ dialog::backdrop { background: #111c1766; backdrop-filter: blur(3px); }
   dialog { padding: 23px; }
   .form-grid { grid-template-columns: 1fr; gap: 0; }
 }
+
+/* Readability pass for member names, metadata, and table controls. */
+.members-header h2 { font-size: .8rem; }
+.member-count { font-size: .8rem; }
+.user-name { font-size: 1rem; }
+.user-email { font-size: .875rem; }
+.badge { font-size: .78rem; }
+.user-menu button { font-size: .875rem; }
+.dialog-description, .confirm-dialog > p, .form-field, .form-error { font-size: .9rem; }
+.form-field input, .form-field select { min-height: 48px; font-size: .95rem; }
+.empty-state p { font-size: .9rem; }
+@media (max-width: 700px) {
+  .members-header h2 { font-size: .8rem; }
+  .member-count { font-size: .8rem; }
+  .user-name { font-size: .95rem; }
+  .user-email { font-size: .82rem; }
+  .badge { font-size: .78rem; }
+}

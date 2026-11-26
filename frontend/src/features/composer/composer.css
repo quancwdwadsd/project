@@ -2233,3 +2233,29 @@
   }
 
 }
+
+/* Readability pass: keep authoring controls and guidance comfortably readable. */
+.composer-app .composer-page { padding: 2rem clamp(1.5rem, 2.8vw, 3rem) 2.5rem; }
+.composer-app .composer-heading { margin-bottom: 1.5rem; }
+.composer-app .composer-heading h1 { font-size: clamp(1.9rem, 2.3vw, 2.25rem); }
+.composer-app .composer-heading .eyebrow { font-size: .8rem; }
+.composer-app .composer-heading .page-description { font-size: 1rem; }
+.composer-app .heading-actions .button { min-height: 3rem; font-size: .9rem; }
+.composer-app .card-heading { font-size: 1.15rem; }
+.composer-app .field-label { font-size: .95rem; }
+.composer-app .title-input { min-height: 3.5rem; font-size: 1.1rem; }
+.composer-app .composer-editor { font-size: 1.05rem; line-height: 1.65; }
+.composer-app .composer-editor:empty::before { font-size: .98rem; }
+.composer-app .campaign-tag-help,
+.composer-app .preview-note,
+.composer-app .preview-status { font-size: .82rem; }
+.composer-app .media-actions .button,
+.composer-app .heading-actions .button,
+.composer-app .editor-actions .button { font-size: .9rem; }
+.composer-app .preview-heading { font-size: 1rem; }
+@media (max-width: 700px) {
+  .composer-app .composer-page { padding: 1.5rem 1rem 2rem; }
+  .composer-app .composer-heading { align-items: flex-start; }
+  .composer-app .composer-heading h1 { font-size: clamp(1.8rem, 7vw, 2.1rem); }
+  .composer-app .heading-actions { flex-wrap: wrap; }
+}

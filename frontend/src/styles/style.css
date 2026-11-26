@@ -9,11 +9,11 @@
   --color-lime: #c3f36b;
   --color-lime-soft: #e9f8cd;
   --color-border: #e9ede6;
-  --sidebar-width: 15.3125rem;
+  --sidebar-width: clamp(220px, 18vw, 280px);
   --radius: 1.25rem;
   font-family: Arial, Helvetica, sans-serif;
   color: var(--color-ink);
-  font-size: clamp(14px, 1.111111vw, 24px);
+  font-size: clamp(16px, 1vw, 18px);
   color-scheme: light;
 }
 
@@ -92,6 +92,7 @@ h1 { margin: 0; font-size: 2rem; font-weight: 750; letter-spacing: -.8px; line-h
 .toast { position: fixed; bottom: 26px; left: 50%; z-index: 30; max-width: min(480px, calc(100% - 32px)); padding: 14px 20px; transform: translateX(-50%); border: 1px solid #374a3e; border-radius: 12px; background: #1d2c22; color: #f4faef; box-shadow: 0 8px 30px #14221a26; font-size: 13px; line-height: 1.5; }
 
 @media (max-width: 1100px) and (min-width: 701px) {
+  :root { --sidebar-width: 220px; }
   .topbar { padding-inline: 1.5rem; }
   .topbar-actions { gap: .75rem; }
   .search-box { width: 12rem; }
@@ -118,3 +119,19 @@ h1 { margin: 0; font-size: 2rem; font-weight: 750; letter-spacing: -.8px; line-h
   .eyebrow { font-size: 8px; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; scroll-behavior: auto !important; } }
+
+/* Keep shared workspace text readable across dashboard, editor, settings, and members. */
+@media (min-width: 701px) {
+  .nav-label { font-size: .75rem; }
+  .nav-item { font-size: .9375rem; }
+  .upgrade-title { font-size: .9375rem; }
+  .upgrade-card > p:not(.upgrade-title) { font-size: .8125rem; line-height: 1.45; }
+  .upgrade-card button { font-size: .75rem; }
+  .account-button { font-size: .875rem; }
+  .breadcrumb { font-size: .875rem; }
+  .profile-button { font-size: .875rem; }
+  .search-box input { font-size: .875rem; }
+  .page-description { font-size: 1rem; }
+  .eyebrow { font-size: .75rem; }
+  .button { font-size: .875rem; }
+}
