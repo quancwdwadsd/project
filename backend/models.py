@@ -102,6 +102,7 @@ class Task(Base):
     assigned_to = Column(Integer, ForeignKey("users.id"))
     assigned_by = Column(Integer, ForeignKey("users.id"))
     status = Column(String(30), default="pending")
+    priority = Column(String(20), nullable=False, default="medium")
     due_date = Column(DateTime)
     created_at = Column(DateTime, server_default=func.current_timestamp())
 

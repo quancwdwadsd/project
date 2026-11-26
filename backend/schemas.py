@@ -153,15 +153,17 @@ class ScheduleResponse(BaseModel):
 class TaskCreate(BaseModel):
     title: str = Field(min_length=1, max_length=200)
     description: Optional[str] = None
-    assigned_to: Optional[int] = None
-    due_date: Optional[datetime] = None
+    assigned_to: int
+    due_date: datetime
+    priority: str = Field(default="medium", min_length=1, max_length=20)
 
 
 class TaskUpdate(BaseModel):
-    title: Optional[str] = Field(default=None, max_length=200)
+    title: Optional[str] = Field(default=None, min_length=1, max_length=200)
     description: Optional[str] = None
     assigned_to: Optional[int] = None
     due_date: Optional[datetime] = None
+    priority: Optional[str] = Field(default=None, min_length=1, max_length=20)
 
 
 class TaskStatusUpdate(BaseModel):
@@ -175,11 +177,11 @@ class TaskResponse(BaseModel):
     assigned_to: Optional[int]
     assigned_by: Optional[int]
     status: str
+    priority: str
     due_date: Optional[datetime]
     created_at: Optional[datetime]
+    overdue: bool
 
-    class Config:
-        from_attributes = True
 
 
 class MediaResponse(BaseModel):
