@@ -17,6 +17,7 @@ from routers.activity_logs import router as activity_logs_router
 from routers.settings import router as settings_router
 from routers.approvals import router as approvals_router
 from routers.post_status import router as post_status_router
+from routers.reports import router as reports_router
 
 
 app = FastAPI(
@@ -77,6 +78,7 @@ app.include_router(activity_logs_router)
 app.include_router(settings_router)
 app.include_router(approvals_router)
 app.include_router(post_status_router)
+app.include_router(reports_router)
 
 @app.get("/")
 def home():
