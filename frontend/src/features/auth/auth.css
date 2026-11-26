@@ -168,3 +168,23 @@ button { font-family: inherit; }
   .spinner { animation: none; }
   .progress-fill { transition: none; }
 }
+
+/* Improve form readability on sign-in and registration screens. */
+.form-panel { padding: clamp(40px, 5vw, 72px); }
+.form-card { max-width: 480px; }
+.form-card h2 { font-size: clamp(32px, 2.5vw, 38px); }
+.form-card .subtitle { font-size: 16px; line-height: 1.6; }
+.field label { font-size: 14px; }
+.field input { min-height: 52px; font-size: 16px; }
+.hint, .field-error { font-size: 14px; }
+.submit-btn { min-height: 54px; font-size: 16px; }
+.switch-line { font-size: 15px; }
+@media (max-width: 900px) {
+  .form-panel { padding: 38px 28px 56px; }
+  .form-card h2 { font-size: 32px; }
+}
+@media (max-width: 520px) {
+  .brand-panel { padding: 28px 22px; }
+  .brand-main h1 { font-size: clamp(27px, 8vw, 34px); }
+  .form-panel { padding: 32px 22px 44px; }
+}

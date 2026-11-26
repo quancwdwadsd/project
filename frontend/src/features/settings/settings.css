@@ -129,3 +129,29 @@
   .settings-app .profile-avatar { width: 1.9rem; height: 1.9rem; }
   .settings-app .page-content { padding: 1.2rem 1rem; }
 }
+
+/* Readability pass for settings forms and explanatory copy. */
+.settings-app .access-denied,
+.settings-app .card-description,
+.settings-app .setting-field > label,
+.settings-app .switch-label,
+.settings-app .tz-preview,
+.settings-app .dirty-note,
+.settings-app .history-meta,
+.settings-app .history-changes,
+.settings-app .last-update { font-size: .9rem; }
+.settings-app .field-hint,
+.settings-app .field-error,
+.settings-app .status-flow li { font-size: .8rem; }
+.settings-app .setting-field input[type="number"],
+.settings-app .setting-field select,
+.settings-app .login-card .setting-field input { min-height: 48px; font-size: .95rem; }
+.settings-app .card-title { font-size: 1.15rem; }
+.settings-app .page-heading h1 { font-size: clamp(1.9rem, 2.3vw, 2.25rem); }
+.settings-app .page-heading .page-description { font-size: 1rem; }
+.settings-app .action-bar { padding: 1rem 1.25rem; }
+.settings-app .button { min-height: 44px; font-size: .9rem; }
+@media (max-width: 700px) {
+  .settings-app .page-heading h1 { font-size: clamp(1.8rem, 7vw, 2.1rem); }
+  .settings-app .settings-card { padding: 1.25rem; }
+}
