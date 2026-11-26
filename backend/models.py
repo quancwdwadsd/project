@@ -6,7 +6,8 @@ from sqlalchemy import (
     Boolean,
     DateTime,
     ForeignKey,
-    func
+    func,
+    JSON
 )
 from database import Base
 from sqlalchemy import ForeignKey, func
@@ -26,6 +27,7 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String(50), nullable=False, unique=True)
+    full_name = Column(String(80), nullable=True)
     email = Column(String(100), nullable=False, unique=True)
     password_hash = Column(String(255), nullable=False)
 
@@ -56,6 +58,7 @@ class Post(Base):
     title = Column(String(200), nullable=False)
     content = Column(Text)
     campaign_tag = Column(String(100))
+    composer_data = Column(JSON, nullable=True)
     status = Column(String(30), default="draft")
     reject_reason = Column(Text)
     created_by = Column(Integer, ForeignKey("users.id"), nullable=False)
@@ -89,6 +92,20 @@ class Schedule(Base):
     scheduled_time = Column(DateTime, nullable=False)
     publish_status = Column(String(30), default="pending")
     platform_post_id = Column(String(100))
+    published_url = Column(String(500), nullable=True)
+    created_at = Column(DateTime, server_default=func.current_timestamp())
+
+
+class PostStatusHistory(Base):
+    __tablename__ = "post_status_history"
+
+    id = Column(Integer, primary_key=True, index=True)
+    post_id = Column(Integer, ForeignKey("posts.id"), nullable=False, index=True)
+    schedule_id = Column(Integer, ForeignKey("schedules.id"), nullable=True, index=True)
+    from_status = Column(String(30), nullable=True)
+    to_status = Column(String(30), nullable=False)
+    changed_by = Column(Integer, ForeignKey("users.id"), nullable=True)
+    reason = Column(Text, nullable=True)
     created_at = Column(DateTime, server_default=func.current_timestamp())
 
 
@@ -101,6 +118,7 @@ class Task(Base):
     assigned_to = Column(Integer, ForeignKey("users.id"))
     assigned_by = Column(Integer, ForeignKey("users.id"))
     status = Column(String(30), default="pending")
+    priority = Column(String(20), nullable=False, default="medium")
     due_date = Column(DateTime)
     created_at = Column(DateTime, server_default=func.current_timestamp())
 

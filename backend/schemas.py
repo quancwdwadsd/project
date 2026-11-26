@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import AnyHttpUrl, BaseModel, Field, EmailStr
 from datetime import datetime
 from typing import Optional
 
@@ -44,20 +44,39 @@ class UserLogin(BaseModel):
     password: str
 
 
+class UserRegister(BaseModel):
+    full_name: str = Field(min_length=2, max_length=80)
+    email: EmailStr = Field(max_length=100)
+    password: str = Field(min_length=8, max_length=72)
+
+
+class AuthUserResponse(BaseModel):
+    id: int
+    username: str
+    full_name: str
+    email: str
+    role_id: int
+    role_name: str
+
+
 class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"
+    expires_in: int
+    user: AuthUserResponse
     
 class PostCreate(BaseModel):
     title: str = Field(min_length=1, max_length=200)
     content: Optional[str] = None
     campaign_tag: Optional[str] = Field(default=None, max_length=100)
+    composer_data: Optional[dict] = None
 
 
 class PostUpdate(BaseModel):
     title: Optional[str] = Field(default=None, min_length=1, max_length=200)
     content: Optional[str] = None
     campaign_tag: Optional[str] = Field(default=None, max_length=100)
+    composer_data: Optional[dict] = None
 
 
 class PostStatusUpdate(BaseModel):
@@ -70,6 +89,7 @@ class PostResponse(BaseModel):
     title: str
     content: Optional[str]
     campaign_tag: Optional[str]
+    composer_data: Optional[dict] = None
     status: str
     reject_reason: Optional[str]
     created_by: int
@@ -118,6 +138,9 @@ class ScheduleUpdate(BaseModel):
 
 class ScheduleStatusUpdate(BaseModel):
     publish_status: str = Field(min_length=1, max_length=30)
+    reason: Optional[str] = Field(default=None, max_length=500)
+    platform_post_id: Optional[str] = Field(default=None, max_length=100)
+    published_url: Optional[AnyHttpUrl] = None
 
 
 class ScheduleResponse(BaseModel):
@@ -127,6 +150,7 @@ class ScheduleResponse(BaseModel):
     scheduled_time: datetime
     publish_status: str
     platform_post_id: Optional[str]
+    published_url: Optional[str] = None
     created_at: Optional[datetime]
 
     class Config:
@@ -136,15 +160,17 @@ class ScheduleResponse(BaseModel):
 class TaskCreate(BaseModel):
     title: str = Field(min_length=1, max_length=200)
     description: Optional[str] = None
-    assigned_to: Optional[int] = None
-    due_date: Optional[datetime] = None
+    assigned_to: int
+    due_date: datetime
+    priority: str = Field(default="medium", min_length=1, max_length=20)
 
 
 class TaskUpdate(BaseModel):
-    title: Optional[str] = Field(default=None, max_length=200)
+    title: Optional[str] = Field(default=None, min_length=1, max_length=200)
     description: Optional[str] = None
     assigned_to: Optional[int] = None
     due_date: Optional[datetime] = None
+    priority: Optional[str] = Field(default=None, min_length=1, max_length=20)
 
 
 class TaskStatusUpdate(BaseModel):
@@ -158,11 +184,11 @@ class TaskResponse(BaseModel):
     assigned_to: Optional[int]
     assigned_by: Optional[int]
     status: str
+    priority: str
     due_date: Optional[datetime]
     created_at: Optional[datetime]
+    overdue: bool
 
-    class Config:
-        from_attributes = True
 
 
 class MediaResponse(BaseModel):
