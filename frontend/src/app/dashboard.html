@@ -67,39 +67,39 @@
 
       <main class="page-content" id="main-content">
         <section class="page-heading" aria-labelledby="page-title">
-          <div><p class="eyebrow">Tổng quan</p><h1 id="page-title">Tập trung vào điều quan trọng.</h1><p class="page-description">Bức tranh tổng thể hoạt động truyền thông của bạn.</p></div>
+          <div><p class="eyebrow">Tổng quan</p><h1 id="page-title">Tập trung vào điều quan trọng.</h1><p class="page-description" id="dashboard-description">Bức tranh tổng thể hoạt động truyền thông của bạn.</p></div>
           <button type="button" class="button button-primary create-button" id="create-post"><svg class="icon"><use href="#icon-plus"/></svg>Tạo bài đăng</button>
         </section>
 
         <section class="overview-grid" aria-label="Hiệu suất và bài đăng sắp tới">
           <article class="performance-card" aria-labelledby="performance-title">
-            <div class="performance-copy"><p class="card-eyebrow">Hiệu suất 30 ngày qua</p><h2 id="performance-title">Tương tác đang tăng</h2><p class="growth-number">+24.8%</p><p class="muted-note">so với 30 ngày trước</p></div>
-            <div class="chart" role="img" aria-label="Biểu đồ tương tác tăng qua 7 tuần, cao nhất ở hiện tại">
-              <div class="chart-column"><span class="chart-bar chart-bar-1"></span><span class="chart-label">Tuần 1</span></div>
-              <div class="chart-column"><span class="chart-bar chart-bar-2"></span><span class="chart-label" aria-hidden="true"></span></div>
-              <div class="chart-column"><span class="chart-bar chart-bar-3"></span><span class="chart-label" aria-hidden="true"></span></div>
-              <div class="chart-column"><span class="chart-bar chart-bar-4"></span><span class="chart-label" aria-hidden="true"></span></div>
-              <div class="chart-column"><span class="chart-bar chart-bar-5"></span><span class="chart-label" aria-hidden="true"></span></div>
-              <div class="chart-column"><span class="chart-bar chart-bar-6"></span><span class="chart-label" aria-hidden="true"></span></div>
-              <div class="chart-column"><span class="chart-bar chart-bar-7 is-current"></span><span class="chart-label">Hiện tại</span></div>
+            <div class="performance-copy"><p class="card-eyebrow">Facebook · 7 ngày gần nhất</p><h2 id="performance-title">Tương tác trên Page</h2><p class="growth-number" id="facebook-engagement">—</p><p class="muted-note" id="facebook-account-name">Đang tải số liệu Meta…</p></div>
+            <div class="chart" id="facebook-engagement-chart" role="img" aria-label="Biểu đồ tương tác Facebook 7 ngày gần nhất">
+              <div class="chart-column"><span class="chart-bar chart-bar-1"></span><span class="chart-label">—</span></div>
+              <div class="chart-column"><span class="chart-bar chart-bar-2"></span><span class="chart-label">—</span></div>
+              <div class="chart-column"><span class="chart-bar chart-bar-3"></span><span class="chart-label">—</span></div>
+              <div class="chart-column"><span class="chart-bar chart-bar-4"></span><span class="chart-label">—</span></div>
+              <div class="chart-column"><span class="chart-bar chart-bar-5"></span><span class="chart-label">—</span></div>
+              <div class="chart-column"><span class="chart-bar chart-bar-6"></span><span class="chart-label">—</span></div>
+              <div class="chart-column"><span class="chart-bar chart-bar-7 is-current"></span><span class="chart-label">—</span></div>
             </div>
           </article>
           <article class="upcoming-card" aria-labelledby="upcoming-title">
-            <p class="card-eyebrow">Sắp diễn ra</p><h2 id="upcoming-title">Bài đăng<br>tiếp theo</h2><p class="upcoming-time">10:30&nbsp; · &nbsp;Thứ Tư, 11/11</p><hr class="upcoming-divider"><p class="upcoming-channel">Instagram&nbsp; / &nbsp;Chiến dịch tháng 11</p>
-            <a class="schedule-button" href="./post_status.html">Xem trạng thái bài đăng <svg class="icon"><use href="#icon-arrow"/></svg></a>
+            <p class="card-eyebrow">Sắp diễn ra</p><h2 id="upcoming-title">Bài đăng<br>tiếp theo</h2><p class="upcoming-time" id="upcoming-time">Chưa có lịch sắp tới</p><hr class="upcoming-divider"><p class="upcoming-channel" id="upcoming-channel">Các lịch đăng sẽ hiện ở đây.</p>
+            <button class="schedule-button" id="schedule-calender" type="button" data-section="Lịch xuất bản">Xem lịch xuất bản <svg class="icon"><use href="#icon-arrow"/></svg></button>
           </article>
         </section>
 
         <section class="metrics-grid" aria-label="Chỉ số tổng quan">
-          <article class="metric-card"><p class="metric-label">Bài viết xuất bản</p><p class="metric-value">128</p><p class="metric-trend">+ 12.8% so với tháng trước</p></article>
-          <article class="metric-card"><p class="metric-label">Kênh kết nối</p><p class="metric-value">04</p><p class="metric-trend">03 đang hoạt động</p></article>
-          <article class="metric-card"><p class="metric-label">Lượt tiếp cận</p><p class="metric-value">245K</p><p class="metric-trend">+ 18.6% tháng này</p></article>
-          <article class="metric-card"><p class="metric-label">Việc hoàn thành</p><p class="metric-value">24</p><p class="metric-trend">02 việc đang chờ</p></article>
+          <article class="metric-card"><p class="metric-label">Bài đăng đã xuất bản · 28 ngày</p><p class="metric-value" id="published-count">—</p><p class="metric-trend">Theo dữ liệu lịch trong database</p></article>
+          <article class="metric-card"><p class="metric-label">Người theo dõi Facebook</p><p class="metric-value" id="facebook-followers">—</p><p class="metric-trend" id="facebook-page-name">Page Insights</p></article>
+          <article class="metric-card"><p class="metric-label">Tương tác Facebook · 28 ngày</p><p class="metric-value" id="facebook-engagement-28d">—</p><p class="metric-trend">Reactions, comments, shares…</p></article>
+          <article class="metric-card"><p class="metric-label">Tiếp cận Instagram · 28 ngày</p><p class="metric-value" id="instagram-reach-28d">—</p><p class="metric-trend" id="instagram-account-name">Instagram Insights</p></article>
         </section>
 
         <section class="activity-card" aria-labelledby="activity-title">
           <h2 class="card-eyebrow" id="activity-title">Hoạt động gần đây</h2>
-          <div class="activity-row"><svg class="activity-check" aria-hidden="true"><use href="#icon-check"/></svg><p class="activity-text">Đã xuất bản: 5 ý tưởng truyền thông hiệu quả</p><span class="status-pill">Thành công</span></div>
+          <div id="dashboard-activities"><p class="activity-text">Đang tải hoạt động gần đây…</p></div>
         </section>
       </main>
     </div>

@@ -1,3 +1,5 @@
+import asyncio
+import os
 import logging
 from pathlib import Path
 
@@ -22,6 +24,9 @@ from routers.settings import router as settings_router
 from routers.approvals import router as approvals_router
 from routers.post_status import router as post_status_router
 from routers.reports import router as reports_router
+from routers.planner import router as planner_router
+from routers.dashboard import router as dashboard_router
+from schedule_runner import schedule_worker
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +36,30 @@ app = FastAPI(
     version="1.0.0"
 )
 app.mount("/uploads", StaticFiles(directory=Path(__file__).resolve().parent / "uploads", check_dir=False), name="uploads")
+
+_schedule_worker_task = None
+
+
+@app.on_event("startup")
+async def start_schedule_worker():
+    global _schedule_worker_task
+    enabled = os.getenv("SCHEDULE_WORKER_ENABLED", "true").strip().lower()
+    if enabled not in {"1", "true", "yes", "on"}:
+        return
+    if _schedule_worker_task is None or _schedule_worker_task.done():
+        _schedule_worker_task = asyncio.create_task(schedule_worker())
+
+
+@app.on_event("shutdown")
+async def stop_schedule_worker():
+    global _schedule_worker_task
+    if _schedule_worker_task and not _schedule_worker_task.done():
+        _schedule_worker_task.cancel()
+        try:
+            await _schedule_worker_task
+        except asyncio.CancelledError:
+            pass
+    _schedule_worker_task = None
 
 app.add_middleware(
     CORSMiddleware,
@@ -87,3 +116,12 @@ app.include_router(settings_router)
 app.include_router(approvals_router)
 app.include_router(post_status_router)
 app.include_router(reports_router)
+app.include_router(planner_router)
+app.include_router(dashboard_router)
+
+@app.get("/")
+def home():
+    return {
+        "message": "Social Media Management API is running"
+    }
+    

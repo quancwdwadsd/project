@@ -51,6 +51,7 @@
       campaignTags: tags,
       channels: Array.isArray(draft.channels) ? draft.channels : [],
       mediaIds: Array.isArray(draft.mediaIds) ? draft.mediaIds : [],
+      publicImageUrl: String(draft.publicImageUrl ?? '').trim(),
       createdAt: draft.createdAt ?? null,
     };
     return {
@@ -75,6 +76,7 @@
       campaignTags: tags,
       channels: Array.isArray(data.channels) ? data.channels : [],
       mediaIds: Array.isArray(data.mediaIds) ? data.mediaIds : [],
+      publicImageUrl: data.publicImageUrl ?? '',
       createdAt: data.createdAt ?? post.created_at,
       updatedAt: post.updated_at,
     };
