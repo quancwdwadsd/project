@@ -280,6 +280,7 @@
       campaignTags: campaignTagValues(),
       channels: selectedChannels(),
       mediaIds: attachedMedia.map((media) => media.id),
+      publicImageUrl: byId('publish-image-url')?.value.trim() || '',
     };
   }
 
@@ -484,6 +485,7 @@
     const savedChannel = draft?.channels?.[0] ?? 'instagram';
     document.querySelectorAll('input[name="channel"]').forEach((input) => { input.checked = input.value === savedChannel; });
     attachedMedia.splice(0, attachedMedia.length, ...(draft?.mediaIds ?? []).map((id) => ({ id })));
+    byId('publish-image-url').value = draft?.publicImageUrl ?? '';
     byId('new-post-button').hidden = !currentDraftId;
     byId('save-draft-bottom').textContent = currentDraftId ? 'Lưu thay đổi' : 'Lưu nháp';
     setSavedState(currentDraftId ? 'Đang chỉnh sửa bản nháp' : 'Bản nháp mới');
@@ -688,11 +690,123 @@
         document.querySelector('.channel-field').scrollIntoView({ behavior: 'smooth', block: 'center' });
         return;
       }
+      const scheduledDefault = new Date(Date.now() + 60 * 60 * 1000);
+      scheduledDefault.setMinutes(Math.ceil(scheduledDefault.getMinutes() / 5) * 5, 0, 0);
+      const localDate = new Date(scheduledDefault.getTime() - scheduledDefault.getTimezoneOffset() * 60000);
+      byId('scheduled-time').value = localDate.toISOString().slice(0, 16);
+      byId('publish-result').hidden = true;
       byId('publish-dialog').showModal();
     });
     byId('save-from-publish').addEventListener('click', () => {
       byId('publish-dialog').close();
       saveDraft();
+    });
+    byId('schedule-submit').addEventListener('click', async () => {
+      const payload = validateForSave();
+      if (!payload) return;
+      const channelName = payload.channels[0];
+      if (!['facebook', 'instagram'].includes(channelName)) {
+        notify('Hiện chỉ hỗ trợ lên lịch Facebook và Instagram.', 'error');
+        return;
+      }
+      const scheduledValue = byId('scheduled-time').value;
+      const scheduledDate = new Date(scheduledValue);
+      if (!scheduledValue || Number.isNaN(scheduledDate.getTime()) || scheduledDate <= new Date()) {
+        byId('scheduled-time').focus();
+        notify('Chọn ngày giờ đăng trong tương lai.', 'error');
+        return;
+      }
+      if (channelName === 'instagram' && !byId('publish-image-url').value.trim()) {
+        byId('publish-image-url').focus();
+        notify('Instagram cần URL ảnh công khai để lên lịch.', 'error');
+        return;
+      }
+
+      const button = byId('schedule-submit');
+      const resultBox = byId('publish-result');
+      button.disabled = true;
+      resultBox.hidden = false;
+      resultBox.textContent = 'Đang lưu bài và lịch đăng…';
+      try {
+        const saved = await store.saveDraft(payload);
+        currentDraftId = saved.draft.id;
+        byId('new-post-button').hidden = false;
+        const post = await auth.request(`/posts/${encodeURIComponent(currentDraftId)}`, {}, true);
+        if (post.status === 'published') throw new Error('Bài này đã được đăng, không thể đặt lịch lại.');
+
+        const planner = await auth.request('/planner/', {}, true);
+        const channelAliases = {
+          facebook: ['facebook', 'fb', 'facebook_page'],
+          instagram: ['instagram', 'ig', 'instagram_business'],
+        };
+        const channel = (planner.channels || []).find((item) => channelAliases[channelName].includes(String(item.channel_type).trim().toLowerCase()));
+        if (!channel) throw new Error(`Chưa có kênh ${platformNames[channelName]} đang hoạt động trong danh sách kênh.`);
+
+        await auth.request('/planner/', {
+          method: 'POST',
+          body: JSON.stringify({ post_id: Number(currentDraftId), channel_id: channel.id, scheduled_time: scheduledDate.toISOString() }),
+        }, true);
+
+        let approvalMessage = 'Lịch đã được lưu; hệ thống sẽ đợi đến giờ đã chọn.';
+        if (['draft', 'rejected'].includes(post.status)) {
+          await auth.request(`/approvals/${encodeURIComponent(currentDraftId)}/submit`, { method: 'POST' }, true);
+          approvalMessage = 'Đã lưu lịch và gửi bài chờ duyệt. Bài sẽ được đăng khi đã duyệt và đến giờ.';
+        } else if (post.status === 'pending') {
+          approvalMessage = 'Lịch đã lưu. Bài đang chờ duyệt; hệ thống sẽ đăng khi đã duyệt và đến giờ.';
+        }
+        resultBox.textContent = approvalMessage;
+        notify('Đã lưu lịch đăng.', 'success');
+        setSavedState('Đã lưu lịch đăng');
+        dirty = false;
+        renderDraftCount();
+      } catch (error) {
+        resultBox.textContent = error.message || 'Không thể lưu lịch đăng.';
+        resultBox.hidden = false;
+        if (error.status === 401) showApiError(error);
+      } finally {
+        button.disabled = false;
+      }
+    });
+    byId('publish-now').addEventListener('click', async () => {
+      const payload = validateForSave();
+      if (!payload) return;
+      if (payload.channels.some((channel) => !['facebook', 'instagram'].includes(channel))) {
+        notify('Hiện chỉ hỗ trợ đăng trực tiếp lên Facebook và Instagram. Bạn vẫn có thể lưu kênh khác thành bản nháp.', 'error');
+        return;
+      }
+      const button = byId('publish-now');
+      const resultBox = byId('publish-result');
+      button.disabled = true;
+      resultBox.hidden = false;
+      resultBox.textContent = 'Đang lưu và gửi yêu cầu đăng…';
+      try {
+        const saved = await store.saveDraft(payload);
+        currentDraftId = saved.draft.id;
+        byId('new-post-button').hidden = false;
+        const result = await auth.request(`/posts/${encodeURIComponent(currentDraftId)}/publish`, {
+          method: 'POST',
+          body: JSON.stringify({
+            channels: payload.channels.filter((channel) => ['facebook', 'instagram'].includes(channel)),
+            image_url: byId('publish-image-url').value.trim() || null,
+          }),
+        }, true);
+        const failed = (result.results || []).filter((item) => item.status === 'failed');
+        if (result.status === 'published') {
+          resultBox.textContent = 'Đã đăng thành công lên tất cả kênh đã chọn.';
+          notify('Đã đăng bài thành công.', 'success');
+          setSavedState('Đã đăng');
+        } else {
+          resultBox.textContent = failed.map((item) => `${platformNames[item.channel] || item.channel}: ${item.error}`).join(' · ') || 'Chưa đăng được bài.';
+          notify('Không đăng được lên tất cả kênh. Xem chi tiết trong hộp thoại.', 'error');
+        }
+        renderDraftCount();
+      } catch (error) {
+        resultBox.textContent = error.message || 'Không thể đăng bài.';
+        resultBox.hidden = false;
+        if (error.status === 401) showApiError(error);
+      } finally {
+        button.disabled = false;
+      }
     });
     byId('draft-search').addEventListener('keydown', (event) => {
       if (event.key === 'Escape' && byId('drafts-dialog').open) byId('drafts-dialog').close();

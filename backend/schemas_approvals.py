@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class ApprovalMe(BaseModel):
@@ -27,6 +27,8 @@ class ApprovalItem(BaseModel):
     updated_at: Optional[str] = None
     can_submit: bool
     can_review: bool
+    publish_status: Optional[str] = None
+    publish_results: list[dict] = Field(default_factory=list)
 
 
 class ApprovalListResponse(BaseModel):

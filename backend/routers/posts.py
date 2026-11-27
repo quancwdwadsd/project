@@ -6,6 +6,8 @@ from models import Post, PostStatusHistory, Role, User
 from activity_logger import record_activity
 from status_history import record_post_status_change
 from schemas import PostCreate, PostUpdate, PostStatusUpdate, PostResponse
+from schemas_publishing import PublishPostRequest, PublishPostResponse, PublishChannelResult
+from meta_publisher import MetaPublishError, publish_facebook, publish_instagram
 from security import get_current_user, require_roles
 
 
@@ -120,6 +122,62 @@ def delete_post(
     db.commit()
 
     return {"message": "Post deleted successfully"}
+
+
+@router.post("/{post_id}/publish", response_model=PublishPostResponse)
+async def publish_post(
+    post_id: int,
+    publish_data: PublishPostRequest,
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    post = db.query(Post).filter(Post.id == post_id).first()
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    if post.created_by != current_user.id and not can_manage_all_posts(db, current_user):
+        raise HTTPException(status_code=403, detail="Permission denied")
+    if post.status != "approved":
+        raise HTTPException(status_code=409, detail="Bài viết cần được duyệt trước khi đăng.")
+
+    requested = list(dict.fromkeys(publish_data.channels))
+    content = post.composer_data or {}
+    if not isinstance(content, dict):
+        content = {}
+    selected = content.get("channels", [])
+    selected = {str(channel).lower() for channel in selected} if isinstance(selected, list) else set()
+    if not set(requested).issubset(selected):
+        raise HTTPException(status_code=400, detail="Kênh đăng phải được chọn và lưu trong bài viết trước.")
+
+    plain_text = post.content or ""
+    results = []
+    for channel in requested:
+        try:
+            if channel == "facebook":
+                platform_id = await publish_facebook(plain_text)
+            else:
+                platform_id = await publish_instagram(plain_text, str(publish_data.image_url) if publish_data.image_url else None)
+            results.append(PublishChannelResult(channel=channel, status="published", platform_post_id=platform_id or None))
+        except MetaPublishError as error:
+            results.append(PublishChannelResult(channel=channel, status="failed", error=str(error)))
+
+    successful = [result for result in results if result.status == "published"]
+    if successful and len(successful) == len(results):
+        previous_status = post.status
+        post.status = "published"
+        record_post_status_change(db, post.id, "published", current_user.id, from_status=previous_status, reason="Đã đăng qua Meta API")
+    for result in results:
+        record_activity(
+            db, current_user.id,
+            f"Đăng bài #{post.id} lên {result.channel}: {result.status}"[:255],
+            request.client.host if request.client else None,
+        )
+    db.commit()
+    return PublishPostResponse(
+        post_id=post.id,
+        status="published" if successful and len(successful) == len(results) else "partial" if successful else "failed",
+        results=results,
+    )
 
 
 @router.patch("/{post_id}/status", response_model=PostResponse)

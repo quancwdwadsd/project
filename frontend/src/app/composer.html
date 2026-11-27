@@ -167,9 +167,12 @@
   </dialog>
 
   <dialog class="composer-dialog publish-dialog" id="publish-dialog" aria-labelledby="publish-title">
-    <div class="dialog-heading"><div><p class="eyebrow">Bản demo</p><h2 id="publish-title">Chưa kết nối kênh xuất bản</h2></div><button class="icon-button" type="button" data-close-dialog aria-label="Đóng"><svg class="icon"><use href="#icon-close"/></svg></button></div>
-    <p class="dialog-description">Bản xem trước giúp bạn kiểm tra bố cục. Để đăng hoặc lên lịch thật, cần kết nối API của từng mạng xã hội. Bạn có thể lưu nội dung này thành bản nháp trong lúc chờ.</p>
-    <div class="dialog-footer"><button type="button" class="button button-secondary" data-close-dialog>Tiếp tục chỉnh sửa</button><button type="button" class="button button-primary" id="save-from-publish">Lưu bản nháp</button></div>
+    <div class="dialog-heading"><div><p class="eyebrow">Meta publishing</p><h2 id="publish-title">Đăng bài lên kênh đã chọn</h2></div><button class="icon-button" type="button" data-close-dialog aria-label="Đóng"><svg class="icon"><use href="#icon-close"/></svg></button></div>
+    <p class="dialog-description">Chọn thời điểm để hệ thống lưu lịch trong database và tự đăng khi đến giờ. Bài cần được duyệt trước; Instagram cần URL ảnh công khai.</p>
+    <label class="field-label" for="publish-image-url">URL ảnh công khai (bắt buộc khi đăng Instagram)</label><input class="composer-input" id="publish-image-url" type="url" placeholder="https://example.com/image.jpg">
+    <label class="field-label" for="scheduled-time">Ngày và giờ đăng</label><input class="composer-input" id="scheduled-time" type="datetime-local">
+    <p class="form-message" id="publish-result" role="status" hidden></p>
+    <div class="dialog-footer"><button type="button" class="button button-secondary" data-close-dialog>Tiếp tục chỉnh sửa</button><button type="button" class="button button-secondary" id="save-from-publish">Lưu bản nháp</button><button type="button" class="button button-secondary" id="schedule-submit">Đặt lịch</button><button type="button" class="button button-primary" id="publish-now">Đăng ngay</button></div>
   </dialog>
 
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>

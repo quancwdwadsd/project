@@ -8,7 +8,9 @@ from sqlalchemy.orm import Session
 import approval_rules as rules
 from activity_logger import record_activity
 from database import get_db
-from models import ActivityLog, Post, Role, User
+from models import ActivityLog, Post, Role, Schedule, User
+from meta_publisher import MetaPublishError, publish_facebook, publish_instagram
+from status_history import record_post_status_change
 from schemas_approvals import (
     ApprovalDetail,
     ApprovalItem,
@@ -311,7 +313,7 @@ def submit_for_review(
 
 
 @router.post("/{post_id}/approve", response_model=ApprovalItem)
-def approve_post(
+async def approve_post(
     post_id: int,
     request: Request,
     actor: Actor = Depends(get_actor),
@@ -330,8 +332,44 @@ def approve_post(
         {"status": rules.APPROVED, "approved_by": actor.user.id, "reject_reason": None},
         actor, f"{LOG_APPROVE}{post.id}", request
     )
+    db.refresh(post)
+    scheduled = db.query(Schedule.id).filter(
+        Schedule.post_id == post.id,
+        Schedule.publish_status.in_(["pending", "publishing"]),
+    ).first()
+    if scheduled:
+        response = item_response(db, post, actor)
+        response["publish_status"] = "scheduled"
+        response["publish_results"] = []
+        return response
 
-    return item_response(db, post, actor)
+    data = post.composer_data if isinstance(post.composer_data, dict) else {}
+    channels = data.get("channels", [])
+    channels = list(dict.fromkeys(str(channel).lower() for channel in channels)) if isinstance(channels, list) else []
+    outcomes = []
+    for channel in channels:
+        try:
+            if channel == "facebook":
+                platform_id = await publish_facebook(post.content or "")
+            elif channel == "instagram":
+                platform_id = await publish_instagram(post.content or "", data.get("publicImageUrl"))
+            else:
+                raise MetaPublishError(f"Kênh {channel} chưa hỗ trợ đăng tự động.")
+            outcomes.append({"channel": channel, "status": "published", "platform_post_id": platform_id or None, "error": None})
+        except MetaPublishError as error:
+            outcomes.append({"channel": channel, "status": "failed", "platform_post_id": None, "error": str(error)})
+
+    if outcomes and all(item["status"] == "published" for item in outcomes):
+        post.status = rules.PUBLISHED
+        record_post_status_change(db, post.id, rules.PUBLISHED, actor.user.id, from_status=rules.APPROVED, reason="Đăng tự động sau khi duyệt")
+        record_activity(db, actor.user.id, f"Đã đăng bài #{post.id} lên Meta sau khi duyệt", request.client.host if request.client else None)
+        db.commit()
+        db.refresh(post)
+
+    response = item_response(db, post, actor)
+    response["publish_status"] = "published" if outcomes and all(item["status"] == "published" for item in outcomes) else "failed" if outcomes else "not_configured"
+    response["publish_results"] = outcomes
+    return response
 
 
 @router.post("/{post_id}/reject", response_model=ApprovalItem)

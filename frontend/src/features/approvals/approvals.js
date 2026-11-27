@@ -259,8 +259,13 @@
     state.busy = true;
     button.disabled = true;
     try {
-      await action();
-      notify(successMessage);
+      const result = await action();
+      if (result?.publish_status === 'published') notify('Đã duyệt và đăng bài thành công.');
+      else if (result?.publish_status === 'scheduled') notify('Đã duyệt. Bài sẽ được đăng theo lịch đã đặt.');
+      else if (result?.publish_status === 'failed') {
+        const reason = (result.publish_results || []).map((item) => item.error).filter(Boolean).join(' · ');
+        notify(`Đã duyệt nhưng đăng Meta thất bại${reason ? `: ${reason}` : '.'}`, 'error');
+      } else notify(successMessage);
     } catch (error) {
       handleFailure(error);
     } finally {
