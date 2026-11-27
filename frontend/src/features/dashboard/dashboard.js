@@ -134,4 +134,11 @@ const sidebar = document.getElementById('sidebar');
       }
     }
 
+    const scheduleButton = document.getElementById('schedule-calender');
+    if (scheduleButton) {
+      scheduleButton.addEventListener('click', () => {
+        window.location.href = './planner.html';
+      });
+    }
+
     loadDashboardSummary();
