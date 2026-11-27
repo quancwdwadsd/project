@@ -6,7 +6,7 @@ from database import get_db
 from models import Post, Role, Schedule, User
 from activity_logger import record_activity
 from status_history import record_post_status_change
-from schemas import PostCreate, PostUpdate, PostStatusUpdate, PostResponse
+from schemas import PostCreate, PostUpdate, PostStatusUpdate, PostResponse, PostDraftSummaryResponse
 from schemas_publishing import PublishPostRequest, PublishPostResponse, PublishChannelResult
 from meta_publisher import MetaPublishError, publish_facebook, publish_instagram
 from security import get_current_user, require_roles
