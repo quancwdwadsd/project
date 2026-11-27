@@ -109,16 +109,8 @@
     byId('approval-banner').hidden = !message;
   }
 
-  function goToLogin() {
-    auth?.endSession();
-    window.location.replace('./login.html');
-  }
-
   function handleFailure(error, { toast = true } = {}) {
-    if (error.status === 401) {
-      goToLogin();
-      return;
-    }
+    if (error.status === 401) return;
     if (toast) notify(errorMessage(error), 'error');
     else showBanner(errorMessage(error));
   }
@@ -291,6 +283,7 @@
         await loadList();
         return;
       }
+      if (error.status === 401) return;
       renderDetailPlaceholder(errorMessage(error));
       handleFailure(error, { toast: false });
     }
@@ -355,7 +348,7 @@
     } catch (failure) {
       if (failure.status === 401) {
         byId('reject-dialog').close();
-        handleFailure(failure);
+        return;
       } else if (failure.status === 422) {
         error.textContent = errorMessage(failure);
         error.hidden = false;
@@ -373,25 +366,16 @@
 
   async function start() {
     showBanner('');
-    if (!api.getToken()) {
-      window.location.replace('./login.html');
-      return;
-    }
+    if (!api.getToken()) return;
     try {
       state.me = await api.me();
     } catch (error) {
-      if (error.status === 401) goToLogin();
-      else {
+      if (error.status !== 401) {
         byId('reload-button').hidden = false;
         showBanner(errorMessage(error));
       }
       return;
     }
-    byId('user-name').textContent = state.me.username;
-    byId('user-initial').textContent = state.me.username.charAt(0).toUpperCase();
-    byId('profile-initials').textContent = state.me.username.slice(0, 2).toUpperCase();
-    byId('profile-role').textContent = state.me.role || 'Người dùng';
-    byId('logout-button').hidden = false;
     if (!state.me.can_use) {
       byId('approval-view').hidden = true;
       showBanner('Vai trò của bạn không có quyền dùng chức năng duyệt nội dung.');
@@ -432,7 +416,6 @@
 
     byId('reload-button').addEventListener('click', () => (state.me ? loadList() : start()));
     byId('banner-retry').addEventListener('click', start);
-    byId('logout-button').addEventListener('click', () => { auth?.endSession(); window.location.replace('./login.html'); });
 
     byId('mobile-menu').addEventListener('click', () => {
       const isOpen = byId('sidebar').classList.toggle('is-open');

@@ -19,7 +19,7 @@ DATABASE_URL = URL.create(
 
 engine = create_engine(
     DATABASE_URL,
-    echo=True,
+    echo=os.getenv("DB_ECHO", "false").lower() == "true",
     pool_pre_ping=True,
     connect_args={"ssl": ssl.create_default_context()}
     if os.getenv("DB_SSL", "false").lower() == "true" else {}

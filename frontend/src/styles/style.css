@@ -79,6 +79,17 @@ a { color: inherit; text-decoration: none; }
 .eyebrow { margin: 0 0 1rem; color: var(--color-muted); font-size: .625rem; font-weight: 700; line-height: .875rem; letter-spacing: .3px; text-transform: uppercase; }
 h1 { margin: 0; font-size: 2rem; font-weight: 750; letter-spacing: -.8px; line-height: 1.2; }
 .page-description { margin: .75rem 0 0; color: #8b958c; font-size: .875rem; line-height: 1.5; }
+
+dialog[open] { animation: mediahub-dialog-in 210ms cubic-bezier(.22, 1, .36, 1) both; }
+dialog[open]::backdrop { animation: mediahub-backdrop-in 180ms ease-out both; }
+@keyframes mediahub-dialog-in {
+  from { opacity: 0; transform: translateY(8px) scale(.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes mediahub-backdrop-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
 .button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 39px; padding: 11px 17px; border-radius: 10px; font-size: 12px; font-weight: 600; line-height: 1.3; transition: background .15s, transform .15s; }
 .button:active { transform: translateY(1px); }
 .button .icon { width: 14px; height: 14px; }
@@ -118,7 +129,10 @@ h1 { margin: 0; font-size: 2rem; font-weight: 750; letter-spacing: -.8px; line-h
   .page-description { font-size: 11px; }
   .eyebrow { font-size: 8px; }
 }
-@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; scroll-behavior: auto !important; } }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; scroll-behavior: auto !important; }
+  dialog[open], dialog[open]::backdrop { animation-duration: 1ms !important; }
+}
 
 /* Keep shared workspace text readable across dashboard, editor, settings, and members. */
 @media (min-width: 701px) {

@@ -20,7 +20,8 @@ def get_post_media(
     current_user: User = Depends(get_current_user)
 ):
     post = db.query(Post).filter(
-        Post.id == post_id
+        Post.id == post_id,
+        Post.deleted_at.is_(None)
     ).first()
 
     if not post:
@@ -42,7 +43,8 @@ def add_media_to_post(
     current_user: User = Depends(get_current_user)
 ):
     post = db.query(Post).filter(
-        Post.id == post_id
+        Post.id == post_id,
+        Post.deleted_at.is_(None)
     ).first()
 
     if not post:
@@ -98,7 +100,8 @@ def remove_media_from_post(
     current_user: User = Depends(get_current_user)
 ):
     post = db.query(Post).filter(
-        Post.id == post_id
+        Post.id == post_id,
+        Post.deleted_at.is_(None)
     ).first()
 
     if not post:

@@ -63,6 +63,7 @@
       render();
       document.getElementById('add-user-button').disabled = !Object.keys(store.roles).length;
     } catch (exception) {
+      if (exception.status === 401) return;
       error.textContent = exception.message;
       error.hidden = false;
       retry.hidden = false;
@@ -178,7 +179,7 @@
       const updated = await store.updateAccess(user.id, user.role, unlocking ? 'active' : 'locked');
       users = users.map((member) => member.id === user.id ? updated : member);
       persist(`Đã ${unlocking ? 'mở khóa' : 'khóa'} tài khoản ${user.name}.`);
-    } catch (error) { notify(error.message); }
+    } catch (error) { if (error.status !== 401) notify(error.message); }
     finally { setSaving(false); }
   }
 
@@ -223,6 +224,7 @@
       dialog.close();
       persist('Đã thêm người dùng vào database.');
     } catch (exception) {
+      if (exception.status === 401) return;
       formError.textContent = exception.message;
       formError.hidden = false;
     } finally { setSaving(false); }
@@ -248,6 +250,7 @@
       persist('Đã lưu vai trò và trạng thái vào database.');
       editDialog.close();
     } catch (error) {
+      if (error.status === 401) return;
       editFormError.textContent = error.message;
       editFormError.hidden = false;
     } finally { setSaving(false); }
@@ -277,7 +280,7 @@
       users = users.filter((member) => member.id !== user.id);
       confirmDialog.close();
       persist(`Đã xóa ${user.name} khỏi database.`);
-    } catch (error) { notify(error.message); }
+    } catch (error) { if (error.status !== 401) notify(error.message); }
     finally { setSaving(false); }
   });
   search.addEventListener('input', render);
@@ -300,17 +303,15 @@
 
   function setSidebar(open) {
     sidebar.classList.toggle('is-open', open);
-    sidebar.inert = window.matchMedia('(max-width: 700px)').matches && !open;
+    sidebar.inert = window.matchMedia('(max-width: 900px)').matches && !open;
     overlay.hidden = !open;
     menuToggle.setAttribute('aria-expanded', String(open));
     if (open) sidebar.querySelector('a').focus();
   }
   menuToggle.addEventListener('click', () => setSidebar(!sidebar.classList.contains('is-open')));
   overlay.addEventListener('click', () => { setSidebar(false); menuToggle.focus(); });
-  window.matchMedia('(min-width: 701px)').addEventListener('change', () => setSidebar(false));
+  window.matchMedia('(min-width: 901px)').addEventListener('change', () => setSidebar(false));
   document.querySelectorAll('[data-section]').forEach((button) => button.addEventListener('click', () => notify(`Mục ${button.dataset.section} chưa có trong bản giao diện này.`)));
-  document.getElementById('manage-plan').addEventListener('click', () => notify('Workspace Pro là thông tin trong mẫu thiết kế. Chưa kết nối quản lý gói.'));
-  ['account-button', 'profile-button'].forEach((id) => document.getElementById(id).addEventListener('click', () => notify('Bạn đang xem không gian làm việc của Minh Quân.')));
   document.getElementById('notifications-button').addEventListener('click', () => notify('Bạn chưa có thông báo mới.'));
 
   setSidebar(false);

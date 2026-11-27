@@ -1,7 +1,10 @@
 import asyncio
 import os
+import logging
+from pathlib import Path
 
 from fastapi import FastAPI, Depends, HTTPException
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 from sqlalchemy.orm import Session
@@ -25,11 +28,14 @@ from routers.planner import router as planner_router
 from routers.dashboard import router as dashboard_router
 from schedule_runner import schedule_worker
 
+logger = logging.getLogger(__name__)
+
 
 app = FastAPI(
     title="Social Media Management API",
     version="1.0.0"
 )
+app.mount("/uploads", StaticFiles(directory=Path(__file__).resolve().parent / "uploads", check_dir=False), name="uploads")
 
 _schedule_worker_task = None
 
@@ -88,10 +94,11 @@ def test_database(db: Session = Depends(get_db)):
             "tables": [table[0] for table in tables]
         }
 
-    except Exception as e:
+    except Exception:
+        logger.exception("Database health check failed")
         raise HTTPException(
-            status_code=500,
-            detail=str(e)
+            status_code=503,
+            detail="Không thể kết nối cơ sở dữ liệu. Kiểm tra cấu hình backend và trạng thái DB."
         )
 
 app.include_router(users_router)

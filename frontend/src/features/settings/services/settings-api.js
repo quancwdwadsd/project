@@ -2,7 +2,6 @@
   'use strict';
 
   // Địa chỉ backend. Đổi bằng cách khai báo window.MEDIAHUB_API_BASE trước khi nạp file này.
-  const API_BASE = (window.MEDIAHUB_API_BASE || 'http://127.0.0.1:8000').replace(/\/$/, '');
   // Read the existing session from UC01's shared auth module.
   const auth = window.MediaHubAuth;
 
@@ -21,20 +20,8 @@
 
 
   async function request(path, { method = 'GET', body, auth = true } = {}) {
-    const headers = { Accept: 'application/json' };
-    if (body !== undefined) headers['Content-Type'] = 'application/json';
-    const token = auth ? getToken() : null;
-    if (token) headers.Authorization = `Bearer ${token}`;
-    let response;
-    try {
-      response = await fetch(`${API_BASE}${path}`, { method, headers, body: body === undefined ? undefined : JSON.stringify(body) });
-    } catch {
-      throw new ApiError(0, null);
-    }
-    let data = null;
-    try { data = await response.json(); } catch { /* phản hồi không có nội dung JSON */ }
-    if (!response.ok) throw new ApiError(response.status, data?.detail ?? null);
-    return data;
+    try { return await window.MediaHubAuth.request(path, { method, ...(body === undefined ? {} : { body: JSON.stringify(body) }) }, auth); }
+    catch (error) { throw new ApiError(error.status || 0, error.message); }
   }
 
 

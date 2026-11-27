@@ -61,7 +61,7 @@ def load_items(db: Session, posts: list[Post], user: User) -> list[dict]:
 
 def visible_posts(db: Session, user: User):
     role = role_name(db, user)
-    posts = db.query(Post).order_by(Post.updated_at.desc(), Post.id.desc()).all()
+    posts = db.query(Post).filter(Post.deleted_at.is_(None)).order_by(Post.updated_at.desc(), Post.id.desc()).all()
     if role in {"admin", "manager"}:
         return posts
     if role not in {"editor", "employee"}:
@@ -111,7 +111,7 @@ def get_post_status(
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
-    post = db.query(Post).filter(Post.id == post_id).first()
+    post = db.query(Post).filter(Post.id == post_id, Post.deleted_at.is_(None)).first()
     if not post or post.id not in {item.id for item in visible_posts(db, user)}:
         raise HTTPException(status_code=404, detail="Không tìm thấy bài đăng")
     item = load_item(db, post, user)

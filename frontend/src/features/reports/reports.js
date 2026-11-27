@@ -87,9 +87,8 @@
     try {
       render(await window.MediaHubReportsApi.getReport(paramsFromForm()));
     } catch (error) {
-      $('report-error').innerHTML = error.status === 401
-        ? `${escapeHtml(error.message)} <a href="./login.html">Đăng nhập</a>`
-        : error.status === 403 ? 'Tài khoản chưa được cấp quyền xem báo cáo.' : escapeHtml(error.message || 'Không tải được báo cáo.');
+      if (error.status === 401) return;
+      $('report-error').textContent = error.status === 403 ? 'Tài khoản chưa được cấp quyền xem báo cáo.' : (error.message || 'Không tải được báo cáo.');
       $('report-error').hidden = false;
     } finally {
       submit.disabled = false;

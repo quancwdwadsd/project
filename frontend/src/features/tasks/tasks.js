@@ -79,6 +79,7 @@
         notify('Đã cập nhật tiến độ nhiệm vụ.');
         await loadTasks();
       } catch (error) {
+        if (error.status === 401) { select.disabled = false; return; }
         select.value = task.status;
         notify(displayError(error), 'error');
         select.disabled = false;
@@ -127,6 +128,7 @@
       renderSummary();
       renderTasks();
     } catch (error) {
+      if (error.status === 401) return;
       const alert = byId('task-alert');
       alert.textContent = displayError(error);
       alert.hidden = false;
@@ -167,6 +169,7 @@
       notify('Đã tạo và giao nhiệm vụ.');
       await loadTasks();
     } catch (error) {
+      if (error.status === 401) return;
       const err = byId('task-form-error');
       err.textContent = displayError(error);
       err.hidden = false;
@@ -182,20 +185,15 @@
     menu.addEventListener('click', () => toggle(!sidebar.classList.contains('is-open')));
     overlay.addEventListener('click', () => toggle(false));
     sidebar.querySelectorAll('a').forEach((link) => link.addEventListener('click', () => toggle(false)));
-    byId('logout-button').addEventListener('click', () => { window.MediaHubAuth.endSession(); window.location.replace('./login.html'); });
   }
   async function init() {
     const current = api.session();
-    if (!current?.access_token || !current?.user) { window.location.replace('./login.html'); return; }
+    if (!current?.access_token || !current?.user) return;
     state.user = current.user;
     state.role = roleText(current.user.role_name || current.user.role);
     state.manager = isManagerRole(state.role);
     if (!state.manager && !isEmployeeRole(state.role)) { window.location.replace('./composer.html'); return; }
     const name = current.user.full_name || current.user.name || current.user.username || 'Người dùng';
-    byId('user-name').textContent = name;
-    byId('user-initial').textContent = initials(name).slice(-1);
-    byId('profile-initials').textContent = initials(name);
-    byId('profile-role').textContent = state.manager ? 'Quản lý' : 'Nhân viên';
     byId('create-task-button').hidden = !state.manager;
     document.querySelectorAll('.manager-filter').forEach((node) => { node.hidden = !state.manager; });
     setupNavigation();

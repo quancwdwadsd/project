@@ -28,6 +28,7 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String(50), nullable=False, unique=True)
     full_name = Column(String(80), nullable=True)
+    avatar_url = Column(String(500), nullable=True)
     email = Column(String(100), nullable=False, unique=True)
     password_hash = Column(String(255), nullable=False)
 
@@ -69,6 +70,7 @@ class Post(Base):
         server_default=func.current_timestamp(),
         onupdate=func.current_timestamp()
     )
+    deleted_at = Column(DateTime, nullable=True, index=True)
 
 
 class Channel(Base):

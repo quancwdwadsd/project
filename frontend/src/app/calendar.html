@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#151e1a">
+  <title>Lịch xuất bản · MediaHub</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/mediahub-favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://kit.fontawesome.com/1fac2a0eff.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="../styles/style.css">
+  <link rel="stylesheet" href="../styles/workspace.css">
+  <style>
+    .calendar-empty { display: grid; place-items: center; min-height: min(52vh, 440px); margin-top: 24px; padding: 32px; border: 1px dashed #dce4d9; border-radius: 18px; background: #fff; text-align: center; }
+    .calendar-empty i { display: grid; place-items: center; width: 52px; height: 52px; margin: 0 auto 14px; border-radius: 16px; background: #e9f8cd; color: #26362a; font-size: 22px; }
+    .calendar-empty h2 { margin: 0 0 7px; font-size: 18px; }
+    .calendar-empty p { margin: 0; color: #77827b; font-size: 13px; }
+  </style>
+  <script src="../features/auth/services/auth-storage.js" defer></script>
+  <script src="../features/workspace/workspace-shell.js" defer></script>
+  <script src="../features/auth/identity.js" defer></script>
+  <script src="../features/workspace/calendar.js" defer></script>
+</head>
+<body class="workspace-app">
+  <div class="workspace">
+    <button class="sidebar-overlay" id="sidebar-overlay" aria-label="Đóng thanh điều hướng" hidden></button>
+    <aside class="sidebar" id="sidebar" aria-label="Không gian làm việc">
+      <a class="brand" href="./dashboard.html" aria-label="MediaHub — Trang tổng quan"><span class="brand-mark">m.</span><span>mediahub</span></a>
+      <p class="nav-label">Workspace</p>
+      <nav class="navigation" aria-label="Điều hướng chính">
+        <a class="nav-item" href="./dashboard.html"><i class="workspace-nav-icon fa-solid fa-table-cells-large" aria-hidden="true"></i><span>Tổng quan</span></a>
+        <a class="nav-item" href="./composer.html"><i class="workspace-nav-icon fa-regular fa-file-lines" aria-hidden="true"></i><span>Thư viện nội dung</span></a>
+        <a class="nav-item" href="./approvals.html"><i class="workspace-nav-icon fa-regular fa-circle-check" aria-hidden="true"></i><span>Duyệt nội dung</span></a>
+        <a class="nav-item" href="./post_status.html"><i class="workspace-nav-icon fa-regular fa-pen-to-square" aria-hidden="true"></i><span>Trạng thái bài đăng</span></a>
+        <a class="nav-item" href="./reports.html"><i class="workspace-nav-icon fa-solid fa-chart-column" aria-hidden="true"></i><span>Báo cáo phân tích</span></a>
+        <a class="nav-item" href="./tasks.html"><i class="workspace-nav-icon fa-regular fa-square-check" aria-hidden="true"></i><span>Công việc</span></a>
+        <a class="nav-item is-active" href="./calendar.html" aria-current="page"><i class="workspace-nav-icon fa-regular fa-calendar-days" aria-hidden="true"></i><span>Lịch xuất bản</span></a>
+        <a class="nav-item" href="./user_management.html"><i class="workspace-nav-icon fa-solid fa-users" aria-hidden="true"></i><span>Quản lý người dùng</span></a>
+        <a class="nav-item" href="./settings.html"><i class="workspace-nav-icon fa-solid fa-gear" aria-hidden="true"></i><span>Cấu hình hệ thống</span></a>
+      </nav>
+      <div class="sidebar-bottom"><button class="account-button" type="button" id="account-button" data-account-open><span class="avatar avatar-account" data-user-initial aria-hidden="true">?</span><span class="account-name" data-user-name>Đang tải tài khoản…</span><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button></div>
+    </aside>
+    <div class="workspace-main">
+      <header class="topbar">
+        <button type="button" class="icon-button mobile-menu" id="mobile-menu" aria-label="Mở thanh điều hướng" aria-expanded="false" aria-controls="sidebar"><i class="fa-solid fa-bars" aria-hidden="true"></i></button>
+        <div class="breadcrumb"><span>MediaHub</span><span class="breadcrumb-divider">/</span><span>Lịch xuất bản</span></div>
+        <div class="topbar-actions"><button type="button" class="profile-button" id="profile-button" data-account-open><span class="avatar profile-avatar" data-user-initials aria-hidden="true">?</span><span class="profile-name" data-user-name>Đang tải tài khoản…</span></button></div>
+      </header>
+      <main class="page-content" id="main-content">
+        <section class="page-heading" aria-labelledby="page-title"><div><p class="eyebrow">Workspace</p><h1 id="page-title">Lịch xuất bản</h1><p class="page-description">Theo dõi nội dung đã lên lịch và thời điểm xuất bản.</p></div></section>
+        <section class="calendar-empty" aria-label="Lịch đang trống"><div><i class="fa-regular fa-calendar-days" aria-hidden="true"></i><h2>Chưa có lịch xuất bản</h2><p>Nội dung được lên lịch sẽ xuất hiện tại đây.</p></div></section>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

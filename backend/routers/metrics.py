@@ -18,9 +18,9 @@ def get_metrics(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    return db.query(PostMetric).order_by(
-        PostMetric.collected_at.desc()
-    ).all()
+    return db.query(PostMetric).join(Post, Post.id == PostMetric.post_id).filter(
+        Post.deleted_at.is_(None)
+    ).order_by(PostMetric.collected_at.desc()).all()
 
 
 @router.get("/post/{post_id}", response_model=list[PostMetricResponse])
@@ -30,7 +30,8 @@ def get_post_metrics(
     current_user: User = Depends(get_current_user)
 ):
     post = db.query(Post).filter(
-        Post.id == post_id
+        Post.id == post_id,
+        Post.deleted_at.is_(None)
     ).first()
 
     if not post:
@@ -51,7 +52,8 @@ def create_metric(
     current_user: User = Depends(require_roles("Admin", "Manager"))
 ):
     post = db.query(Post).filter(
-        Post.id == metric_data.post_id
+        Post.id == metric_data.post_id,
+        Post.deleted_at.is_(None)
     ).first()
 
     if not post:

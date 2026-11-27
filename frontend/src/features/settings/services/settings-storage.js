@@ -28,7 +28,6 @@
     duplicateSlot: { group: 'status', type: 'select', options: duplicateModes, default: 'warn', label: 'Khi lịch trùng giờ trên cùng kênh', hint: 'Áp dụng lúc lên lịch đăng bài.' },
     retryLimit: { group: 'status', type: 'number', min: 0, max: 5, unit: 'lần', default: 3, label: 'Số lần thử lại khi đăng tự động thất bại', hint: 'Chỉ áp dụng khi bật đăng tự động. Vẫn lỗi thì ghi trạng thái “Thất bại”.' },
     overdueMinutes: { group: 'status', type: 'number', min: 5, max: 1440, unit: 'phút', default: 60, label: 'Đánh dấu bài quá lịch sau', hint: 'Bài chưa đăng sau thời gian này sẽ cảnh báo người phụ trách.' },
-    sessionMinutes: { group: 'ops', type: 'number', min: 5, max: 480, unit: 'phút', default: 30, label: 'Phiên đăng nhập hết hạn sau', hint: 'Tự đăng xuất khi không thao tác. Mặc định 30 phút.' },
     maxFailedLogins: { group: 'ops', type: 'number', min: 3, max: 10, unit: 'lần', default: 5, label: 'Số lần nhập sai mật khẩu tối đa', hint: 'Quá số lần này thì khóa tài khoản tạm thời.' },
     lockMinutes: { group: 'ops', type: 'number', min: 1, max: 1440, unit: 'phút', default: 15, label: 'Thời gian khóa tạm', hint: 'Thời gian tài khoản bị khóa sau khi nhập sai quá số lần cho phép.' },
     minPasswordLength: { group: 'ops', type: 'number', min: 8, max: 32, unit: 'ký tự', default: 8, label: 'Độ dài mật khẩu tối thiểu', hint: 'Không thấp hơn 8 ký tự.' },

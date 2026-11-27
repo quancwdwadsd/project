@@ -111,6 +111,11 @@
     const submitBtn = document.getElementById('submit-btn');
     const loginError = document.getElementById('login-error');
     const password = document.getElementById('password');
+    const params = new URLSearchParams(window.location.search);
+    const reason = params.get('reason');
+    const subtitle = document.querySelector('.form-card .subtitle');
+    if (subtitle && reason === 'expired') subtitle.textContent = 'Phiên đăng nhập đã hết hạn. Đăng nhập lại để tiếp tục.';
+    else if (subtitle && reason === 'required') subtitle.textContent = 'Đăng nhập để tiếp tục vào không gian làm việc.';
 
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
@@ -121,7 +126,12 @@
       setLoading(submitBtn, true);
       try {
         await auth.login(email, password.value);
-        showSuccessDialog('Đăng nhập thành công!', 'Đang chuyển tới Composer...', '../app/composer.html');
+        const isSessionReauth = reason === 'expired' && Boolean(params.get('returnTo'));
+        const target = isSessionReauth ? auth.safeReturnTo(params.get('returnTo')) : '../app/dashboard.html';
+        const message = isSessionReauth
+          ? 'Đang quay lại trang bạn vừa sử dụng...'
+          : 'Đang mở trang tổng quan...';
+        showSuccessDialog('Đăng nhập thành công!', message, target);
       } catch (error) {
         loginError.textContent = error.status === 401
           ? 'Email hoặc mật khẩu không chính xác.'
